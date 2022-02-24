@@ -80,4 +80,15 @@ public class Ticker extends JPanel
         ticksPerSecond = tps;
         ns = 1000000000 / ticksPerSecond;
     }
+
+    public double getTicksPerSecond()
+    {
+        return ticksPerSecond;
+    }
+
+    public void setupSimulation(Simulation simulation, int ticksPerSecond)
+    {
+        this.simulation = simulation;
+        setTicksPerSecond(ticksPerSecond);
+    }
 }

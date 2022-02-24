@@ -1,7 +1,7 @@
 public class Tab
 {
     protected boolean shiftHeld;
-    
+
     public Tab()
     {
         shiftHeld = false;

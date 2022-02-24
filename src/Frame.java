@@ -9,9 +9,8 @@ public class Frame extends JFrame
     {
         //initializes the frame
         setTitle("Ants");
-        setSize(960, 960);
+        setSize(960, 670);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-//        setExtendedState(JFrame.MAXIMIZED_BOTH);
-//        setUndecorated(true);
+        setLocationRelativeTo(null);
     }
 }

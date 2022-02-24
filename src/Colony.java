@@ -1,8 +1,10 @@
+import java.util.ArrayList;
+
 public class Colony
 {
     private int colonyID;
 
-    
+
     private Vec2 corner;    //index of the tile in the upper left corner of the stash
 
     private ArrayList<Tile> stash;
@@ -11,7 +13,7 @@ public class Colony
     private ArrayList<Ant> ants; //all the ants associated with this colony
 
     public Colony(int colonyID, Vec2 corner, int stashWidth, Tile tiles[][])
-    {   
+    {
         this.colonyID = colonyID;
 
         this.stashWidth = stashWidth;
@@ -30,8 +32,19 @@ public class Colony
         }
     }
 
+    /**
+     * counts all the food in this colony's stash and returns that amount
+     * @return an int representing the total amount of food across all tiles in this colony's stash
+     */
     public int getFood()
     {
+        int food = 0;
+
+        for (Tile tile : stash)
+        {
+            food += tile.getFood();
+        }
+
         return food;
     }
 
@@ -49,8 +62,8 @@ public class Colony
     }
 
     /**
-    *   Returns the fitness of the colony
-    */
+     *   Returns the fitness of the colony
+     */
     public int getFitness()
     {
         //count how many ants are dead
@@ -75,10 +88,10 @@ public class Colony
     }
 
     /**
-    *   Culls all the ants in this colony
-    *   the ants die. 
-    *   to remove the ants from this colony without killing them, use clearAnts()
-    */
+     *   Culls all the ants in this colony
+     *   the ants die.
+     *   to remove the ants from this colony without killing them, use clearAnts()
+     */
     public void cull(ArrayList<Ant> globalAnts)
     {
         //remove this colony's ants from the global population list
@@ -92,17 +105,17 @@ public class Colony
     }
 
     /**
-    *   clears all ants from this colony.
-    *   does not kill the ants! Use cull() for that.
-    */
+     *   clears all ants from this colony.
+     *   does not kill the ants! Use cull() for that.
+     */
     public void clearAnts()
     {
         ants.clear();
     }
 
     /**
-    *   adds the given ant to the colony.
-    */
+     *   adds the given ant to the colony.
+     */
     public void addAnt(Ant ant)
     {
         ants.add(ant);
@@ -110,8 +123,8 @@ public class Colony
     }
 
     /**
-    *   resets all ants in this colony relative to this colony.
-    */
+     *   resets all ants in this colony relative to this colony.
+     */
     public void resetAnts()
     {
         for (Ant ant : ants)
@@ -127,9 +140,9 @@ public class Colony
 
     public void render(int tileWidth, int scaleFactor)
     {
-        noFill();
-        stroke(1);
-        Vec2 corner = stash.get(0).getCenter().minus(new Vec2(tileWidth / 2, tileWidth / 2));
-        rect(corner.x, corner.y, tileWidth * scaleFactor, tileWidth * scaleFactor);
+        //TODO: finish stash rendering
+        System.out.println("Todo: fix colony stash rendering");
+//        Vec2 corner = stash.get(0).getCenter().minus(new Vec2(tileWidth / 2, tileWidth / 2));
+//        rect(corner.x, corner.y, tileWidth * scaleFactor, tileWidth * scaleFactor);
     }
 }

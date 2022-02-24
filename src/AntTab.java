@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class AntTab extends Tab
 {
     private ArrayList<Ant> ants;
@@ -41,7 +43,7 @@ public class AntTab extends Tab
             }
 
             //calculate how many ants are dead
-            if (ant.health <= 0)
+            if (ant.getHealth() <= 0)
             {
                 numDead++;
             }

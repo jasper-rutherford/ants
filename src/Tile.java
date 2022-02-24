@@ -6,7 +6,7 @@ public class Tile
     private Vec2 centerPos; //coordinates of the center of this tile
 
     // private boolean isStash;
-    
+
     public Tile(int numColonies, Vec2 tilePos, int tileWidth, int maxFood)
     {
         this.tilePos = tilePos;
@@ -27,12 +27,12 @@ public class Tile
             pheromones[lcv] = 0;
         }
     }
-    
+
     public int getFood()
     {
-       return food; 
+        return food;
     }
-    
+
     public void render(int tileWidth, int maxFood)
     {
         // if (isStash)
@@ -41,9 +41,12 @@ public class Tile
         //     stroke(1);
         //     rect(centerPos.x - tileWidth / 2, centerPos.y - tileWidth / 2, tileWidth, tileWidth);
         // }
-        fill(48, 89, 39, food * 1.0 / maxFood * 255);
-        noStroke();
-        rect(centerPos.x - tileWidth / 2, centerPos.y - tileWidth / 2, tileWidth, tileWidth);
+
+
+        //TODO: fix tile rendering
+//        fill(48, 89, 39, food * 1.0 / maxFood * 255);
+//        noStroke();
+//        rect(centerPos.x - tileWidth / 2, centerPos.y - tileWidth / 2, tileWidth, tileWidth);
     }
 
     public Vec2 getCenter()

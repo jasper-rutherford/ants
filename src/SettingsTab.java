@@ -7,7 +7,7 @@ public class SettingsTab extends Tab
     private int totalGenerations;       //how many generations are planned -
 
     private int ticksPerSecond;         //the number of ticks simulated per second -
-    
+
     private int ticksRemaining;         //how many ticks are left until the current generation is complete
     private int ticksPerGeneration;     //how many ticks it takes to complete a generation -
 
@@ -78,10 +78,10 @@ public class SettingsTab extends Tab
     }
 
     /**
-    *   Updates the total number of generations by 1.
-    *   increases if shift not held, decreases if shift held
-    *   will not go below 1 
-    */
+     *   Updates the total number of generations by 1.
+     *   increases if shift not held, decreases if shift held
+     *   will not go below 1
+     */
     private void changeTotalGenerations()
     {
         if (!shiftHeld)
@@ -95,10 +95,10 @@ public class SettingsTab extends Tab
     }
 
     /**
-    *   Updates the total number of ticks per second by 1.
-    *   increases if shift not held, decreases if shift held
-    *   will not go below 1 
-    */
+     *   Updates the total number of ticks per second by 1.
+     *   increases if shift not held, decreases if shift held
+     *   will not go below 1
+     */
     private void changeTicksPerSecond()
     {
         if (!shiftHeld)
@@ -112,10 +112,10 @@ public class SettingsTab extends Tab
     }
 
     /**
-    *   Updates the total number of ticks per generation by 1.
-    *   increases if shift not held, decreases if shift held
-    *   will not go below 1 
-    */
+     *   Updates the total number of ticks per generation by 1.
+     *   increases if shift not held, decreases if shift held
+     *   will not go below 1
+     */
     private void changeTicksPerGeneration()
     {
         if (!shiftHeld)
@@ -129,10 +129,10 @@ public class SettingsTab extends Tab
     }
 
     /**
-    *   Updates the total number of ants per generation by 1.
-    *   increases if shift not held, decreases if shift held
-    *   will not go below 1 
-    */
+     *   Updates the total number of ants per generation by 1.
+     *   increases if shift not held, decreases if shift held
+     *   will not go below 1
+     */
     private void changeAntsPerGeneration()
     {
         if (!shiftHeld)

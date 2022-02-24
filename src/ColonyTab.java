@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class ColonyTab extends Tab
 {
     private ArrayList<Colony> trueColonies;
@@ -27,7 +29,7 @@ public class ColonyTab extends Tab
                 int smaller = 0;
                 for (int lcv = 0; lcv < sortedColonies.size(); lcv++)
                 {
-                    if (sortedColonies.get(lcv).getFood() < colony.get(lcv).getFood())
+                    if (sortedColonies.get(lcv).getFood() < colony.getFood())
                     {
                         smaller = lcv;
                     }
@@ -43,7 +45,7 @@ public class ColonyTab extends Tab
                 int smaller = 0;
                 for (int lcv = 0; lcv < sortedColonies.size(); lcv++)
                 {
-                    if (sortedColonies.get(lcv).getNumAliveAnts() < colony.get(lcv).getNumAliveAnts())
+                    if (sortedColonies.get(lcv).getNumAliveAnts() < colony.getNumAliveAnts())
                     {
                         smaller = lcv;
                     }
@@ -59,7 +61,7 @@ public class ColonyTab extends Tab
                 int smaller = 0;
                 for (int lcv = 0; lcv < sortedColonies.size(); lcv++)
                 {
-                    if (sortedColonies.get(lcv).getFitness() < colony.get(lcv).getFitness())
+                    if (sortedColonies.get(lcv).getFitness() < colony.getFitness())
                     {
                         smaller = lcv;
                     }
@@ -76,6 +78,6 @@ public class ColonyTab extends Tab
 
     public void keyPressed()
     {
-        
+
     }
 }
