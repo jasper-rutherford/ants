@@ -10,6 +10,8 @@ public class Colony
     private ArrayList<Tile> stash;
     private int stashWidth;
 
+    private boolean culled;
+
     private ArrayList<Ant> ants; //all the ants associated with this colony
 
     public Colony(int colonyID, Vec2 corner, int stashWidth, Tile tiles[][])
@@ -18,6 +20,8 @@ public class Colony
 
         this.stashWidth = stashWidth;
         this.corner = corner;
+
+        culled = false;
 
         // add all relevant tiles to the stash
         stash = new ArrayList<Tile>();
@@ -102,6 +106,9 @@ public class Colony
 
         //remove this colony's ants from this colony
         ants.clear();
+
+        //mark this colony as culled
+        culled = true;
     }
 
     /**
@@ -122,27 +129,21 @@ public class Colony
         ant.setColony(colonyID);
     }
 
-    /**
-     *   resets all ants in this colony relative to this colony.
-     */
-    public void resetAnts()
-    {
-        for (Ant ant : ants)
-        {
-            //each ant gets a random position within the stash
-            int x = (int)((Math.random() * (stashWidth + 1)) + corner.x * stashWidth);
-            int y = (int)((Math.random() * (stashWidth + 1)) + corner.y * stashWidth);
-
-            //and this colony's id
-            ant.reset(new Vec2(x, y), colonyID);
-        }
-    }
-
     public void render(int tileWidth, int scaleFactor)
     {
         //TODO: finish stash rendering
         System.out.println("Todo: fix colony stash rendering");
 //        Vec2 corner = stash.get(0).getCenter().minus(new Vec2(tileWidth / 2, tileWidth / 2));
 //        rect(corner.x, corner.y, tileWidth * scaleFactor, tileWidth * scaleFactor);
+    }
+
+    public boolean getCulled()
+    {
+        return culled;
+    }
+
+    public void deCull()
+    {
+        culled = false;
     }
 }

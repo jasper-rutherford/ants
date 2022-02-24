@@ -11,16 +11,20 @@ public class Tile
     {
         this.tilePos = tilePos;
         this.centerPos = new Vec2((tilePos.x + 0.5) * tileWidth + 10, (tilePos.y + 0.5) * tileWidth + 10);
+
+
+        //TODO: replace with cooler food function (also convert this to a method :/)
         Vec2 mapCenter = new Vec2(650 / 2 + 10, 650 / 2 + 10);      //todo make this scaleable
         double distance = mapCenter.minus(centerPos).length() / 15;
         if (distance > 100)
         {
             distance = 100;
         }
-
         double trueFoodMax = -Math.sqrt(-(distance * distance) + (2 * distance * maxFood)) + maxFood;
         food = (int)trueFoodMax;
         // food = (int) (Math.random() * trueFoodMax);
+
+        //initialize all pheromones to zero
         pheromones = new int[numColonies];
         for (int lcv = 0; lcv < numColonies; lcv++)
         {

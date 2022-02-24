@@ -25,6 +25,9 @@ public class Ant
     private int genomeRows = 2;
     private double genome[][];
 
+    //TODO: do this
+    private int netStashContribution;
+
 
     /**
      * Default constructor for the ant class.
@@ -67,16 +70,18 @@ public class Ant
     /**
      * Resets the ant to the position/colonyID specified.
      */
-    public void reset(Vec2 pos, int colonyID)
+    public void reset(int colonyID)
     {
+        //TODO: make this work
         this.colonyID = colonyID;
 
         health = maxHealth;
         hunger = 0;
         heldFood = 0;
 
+        //hey make this face away from the center of the stash that's fun
         direction = new Vec2(0, 0);
-        position = pos;
+//        position = pos;
 
         speed = 0;
     }

@@ -5,37 +5,49 @@ import java.util.Collections;
 public class Simulation
 {
     private Map map;
-
-    private int numColonies = 8;
     private ArrayList<Colony> colonies;
-
-    private int numAnts;
     private ArrayList<Ant> ants;
 
     private int generation;
     private int ticksPerGeneration;
 
-    public Simulation(int ticksPerGeneration, int numAnts)
+    //creates a blank simulation, waiting to be set up with setup()
+    public Simulation()
     {
-        this.ticksPerGeneration = ticksPerGeneration;
-        this.numAnts = numAnts;
         this.generation = 0;
 
-        map = new Map(numColonies);
-        colonies = new ArrayList<Colony>();
-        ants = new ArrayList<Ant>();
+        map = null;
+        colonies = null;
+        ants = null;
+    }
 
-        generateColonies();
-        nextGeneration();
+    public void setup(int numColonies, int numAnts)
+    {
+        map = new Map(numColonies);
+
+        //generate colonies
+        generateColonies(numColonies);
+
+        //generates the initial batch of ants
+        generateAnts(numAnts);
+
+        //assigns the ants to random colonies
+        reassignAnts();
+
+        //updates the generation counter
+        generation++;
     }
 
     /**
-     *   generates all the colonies. Does not generate any ants.
-     *   Used purely to setup where the colonies will go/what tiles go with what colony.
+     * generates all the colonies. Does not generate any ants.
+     * Used purely to set up where the colonies will go/what tiles go with what colony.
      */
-    private void generateColonies()
+    private void generateColonies(int numColonies)
     {
-        colonies = new ArrayList<Colony>();
+        //set up the blank list to store the colonies in
+        colonies = new ArrayList<>();
+
+        //TODO: replace this with some method that spawns the colonies randomly or something
         //corners of all the stashes in a 13x13 grid
         Vec2[] corners = {
                 new Vec2(8, 11),
@@ -48,18 +60,24 @@ public class Simulation
                 new Vec2(4, 11)};
 
         int stashWidth = map.getMapWidth() / 13;
+
+        //generate numColonies colonies and store them in the list
         for (int lcv = 0; lcv < numColonies; lcv++)
         {
+            //TODO: set colony constructor to take a list of tiles. the stash should be generated here, not in the constructor.
             colonies.add(new Colony(lcv, corners[lcv].times(stashWidth), stashWidth, map.getTiles()));
         }
     }
 
     /**
-     *   generates the initial batch of ants.
-     *   Expected to be used one time by nextGeneration()
+     * generates the initial batch of ants.
      */
-    private void generateAnts()
+    private void generateAnts(int numAnts)
     {
+        //creates a blank arraylist for ants to be stored in
+        ants = new ArrayList<>();
+
+        //generates numAnts ants with random stats and adds them to the list
         for (int lcv = 0; lcv < numAnts; lcv++)
         {
             ants.add(new Ant());
@@ -69,107 +87,127 @@ public class Simulation
     //advances to the next generation of ants
     public void nextGeneration()
     {
+        //cull the least fit half of ants then repopulate from survivors
+        reproduceAnts();
+
+        //reassign all ants to random colonies (and set their positions around those new colonies)
+        reassignAnts();
+
+        //increase the generation counter by one
         generation++;
+    }
 
-        //if no ants exist, generate the initial batch.
-        if (ants.size() == 0)
+    //cull and repopulate according to fitness.
+    private void reproduceAnts()
+    {
+        //cull colonies until half remain
+        ArrayList<Colony> culled = new ArrayList<Colony>();
+        int numColonies = colonies.size();
+        while (colonies.size() > numColonies / 2)
         {
-            generateAnts();
-        }
-        //if ants exist, cull and repopulate according to fitness.
-        else
-        {
-            //cull colonies until half remain
-            ArrayList<Colony> culled = new ArrayList<Colony>();
-            while (colonies.size() > numColonies / 2)
+            //find the worst colony (the lowest fitness)
+            Colony worstColony = colonies.get(0);
+            int lowestFitness = worstColony.getFitness();
+            for (Colony colony : colonies)
             {
-                //find the worst colony (lowest fitness)
-                Colony worstColony = colonies.get(0);
-                int lowestFitness = worstColony.getFitness();
-                for (int lcv = 0; lcv < numColonies; lcv++)
+                //ignore colonies that have already been culled
+                if (!colony.getCulled() && colony.getFitness() < lowestFitness)
                 {
-                    Colony colony = colonies.get(lcv);
-                    if (colony.getFitness() < lowestFitness)
-                    {
-                        lowestFitness = colony.getFitness();
-                        worstColony = colony;
-                    }
+                    lowestFitness = colony.getFitness();
+                    worstColony = colony;
                 }
-
-                //cull the worst colony
-                culled.add(worstColony);
-                colonies.remove(worstColony);
-                worstColony.cull(ants);
             }
 
-            //add the culled colonies back into the full list after the ants have been culled
-            colonies.addAll(culled);
-
-            //repopulate global ant population
-            ArrayList<Ant> newAnts = new ArrayList<Ant>();
-            for (Ant ant : ants)
-            {
-                //generate a random index that isn't the index for the current ant
-                int randomIndex = (int)(Math.random() * (ants.size() - 1));
-                if (randomIndex >= ants.indexOf(ant))
-                {
-                    randomIndex++;
-                }
-
-                //generate a new ant
-                newAnts.add(new Ant(ant, ants.get(randomIndex)));
-
-                ant.setAge(ant.getAge() + 1);
-            }
-
-            //add all new ants to the global population
-            ants.addAll(newAnts);
+            //cull the worst colony (kill all the ants and take the colony out of consideration)
+            worstColony.cull(ants);
         }
 
-        //redistribute ants among colonies
+        //mark all colonies as not culled
+        for (Colony colony : colonies)
+        {
+            colony.deCull();
+        }
 
+        //repopulate global ant population
+        ArrayList<Ant> newAnts = new ArrayList<Ant>();
+        for (Ant ant : ants)
+        {
+            //generate a random index that isn't the index for the current ant
+            int randomIndex = (int) (Math.random() * (ants.size() - 1));
+            if (randomIndex >= ants.indexOf(ant))
+            {
+                randomIndex++;
+            }
+
+            //generate a new ant
+            newAnts.add(new Ant(ant, ants.get(randomIndex)));
+
+            ant.setAge(ant.getAge() + 1);
+        }
+
+        //add all new ants to the global population
+        ants.addAll(newAnts);
+
+        //shuffle ants when finished
+        Collections.shuffle(ants);
+    }
+
+    //redistribute ants among colonies
+    private void reassignAnts()
+    {
         //clear all colony affiliations
         for (Colony colony : colonies)
         {
             colony.clearAnts();
         }
 
-        //shuffle ants and assign to new colonies
-        Collections.shuffle(ants);
+        //assign ants to new colonies and spawn the ant relative to the new colony
         for (int lcv = 0; lcv < ants.size(); lcv++)
         {
-            colonies.get(lcv % numColonies).addAnt(ants.get(lcv));
-        }
+            //the current ant being reassigned
+            Ant ant = ants.get(lcv);
 
-        //every colony resets all of their ants relative to their new colony
-        for (Colony colony : colonies)
-        {
-            colony.resetAnts();
+            //the id of the colony that the ant will be assigned to
+            int colonyID = lcv % colonies.size();
+
+            //assign the ant to the colony
+            colonies.get(colonyID).addAnt(ant);
+
+            //reset the ant relative to its new colony
+            ant.reset(colonyID);
         }
     }
 
     //updates all ants
     public void tick()
     {
-        for (Ant ant : ants)
+        if (ants != null)
         {
-            ant.update();
+            for (Ant ant : ants)
+            {
+                ant.update();
+            }
         }
     }
 
+    //renders the map and the ants
     public void render(Graphics g)
     {
-        //render colonies
-        for (Colony colony : colonies)
+        //render map if it exists
+        if (map != null)
         {
-            //TODO: fix colony rendering (give tiles a colony stat?)
-//            colony.render(tileWidth, scaleFactor);
+            //render map
+            map.render();
         }
 
-        //render ants
-        for (Ant ant : ants)
+        //render ants only if ants exists
+        if (ants != null)
         {
-            ant.render();
+            //render ants
+            for (Ant ant : ants)
+            {
+                ant.render();
+            }
         }
     }
 }

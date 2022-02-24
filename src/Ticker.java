@@ -6,6 +6,7 @@ import java.awt.*;
  */
 public class Ticker extends JPanel
 {
+    //frame is used to render via frame.repaint()
     private Frame frame;
 
     private Menu menu;
@@ -22,8 +23,8 @@ public class Ticker extends JPanel
     {
         this.frame = frame;
 
-        menu = new Menu();
         simulation = new Simulation();
+        menu = new Menu(this);
 
         lastTime = System.nanoTime();
         setTicksPerSecond(30);
