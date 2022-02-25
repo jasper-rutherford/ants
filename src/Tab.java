@@ -1,9 +1,13 @@
+import java.awt.*;
+
 public class Tab
 {
+    protected boolean selected;
     protected boolean shiftHeld;
 
     public Tab()
     {
+        selected = false;
         shiftHeld = false;
     }
 
@@ -11,23 +15,27 @@ public class Tab
     {
     }
 
-    public void render()
+    public void render(Graphics g)
     {
     }
 
     public void keyPressed()
     {
-        if (keyCode == SHIFT)
-        {
-            shiftHeld = true;
-        }
+
     }
 
     public void keyReleased()
     {
-        if (keyCode == SHIFT)
-        {
-            shiftHeld = false;
-        }
+
+    }
+
+    public void select()
+    {
+        selected = true;
+    }
+
+    public void deselect()
+    {
+        selected = false;
     }
 }

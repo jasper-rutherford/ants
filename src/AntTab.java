@@ -9,9 +9,9 @@ public class AntTab extends Tab
     private Ant lazy;           //the ant that has contributed the least to the stash
     private int numDead;        //the amount of ants that are dead
 
-    public AntTab(ArrayList<Ant> ants)
+    public AntTab()
     {
-        this.ants = ants;
+        ants = null;
     }
 
     //recalculate the ant statistics
