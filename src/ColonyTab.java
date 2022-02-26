@@ -1,17 +1,40 @@
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class ColonyTab extends Tab
 {
+    //the list of colonies in their default order
     private ArrayList<Colony> trueColonies;
+
+    //the same list of colonies, sorted according to the current sortMode
     private ArrayList<Colony> sortedColonies;
+
+    //used to indicate how the sortedColonies are sorted.
+    // 0 - No sorting                       (aka sort by index, smallest to biggest)
+    // 1 - Sort by stored food              (largest to smallest)
+    // 2 - Sort by number of living ants    (largest to smallest)
+    // 3 - Sort by fitness                  (largest to smallest)
     private int sortMode = 0;
 
     public ColonyTab(ArrayList<Colony> colonies)
     {
+        //calls the Tab superclass' constructor
+        super();
+
+        //trueColonies is initialized to the supplied list of colonies
         trueColonies = colonies;
-        tick();
+
+        //sortedColonies is initialized to be empty (it is assumed that tick() will be called before render()
+        sortedColonies = new ArrayList<>();
+
+        //sortMode defaults to 0
+        sortMode = 0;
     }
 
+    /**
+     * updates all the information in the tab based on the current state of the colonies.
+     */
     public void tick()
     {
         sortedColonies.clear();
@@ -36,6 +59,9 @@ public class ColonyTab extends Tab
                 }
                 sortedColonies.add(smaller, colony);
             }
+
+            //reverse the list (this will produce smallest to biggest otherwise)
+            Collections.reverse(sortedColonies);
         }
         //sort by number of living ants
         else if (sortMode == 2)
@@ -52,6 +78,9 @@ public class ColonyTab extends Tab
                 }
                 sortedColonies.add(smaller, colony);
             }
+
+            //reverse the list (this will produce smallest to biggest otherwise)
+            Collections.reverse(sortedColonies);
         }
         //sort by fitness
         else if (sortMode == 4)
@@ -68,15 +97,28 @@ public class ColonyTab extends Tab
                 }
                 sortedColonies.add(smaller, colony);
             }
+
+            //reverse the list (this will produce smallest to biggest otherwise)
+            Collections.reverse(sortedColonies);
+        }
+    }
+
+    public void keyPressed(KeyEvent e)
+    {
+        //left arrow - reduce sortMode by one (looping around from 0 to 3)
+        if (e.getKeyCode() == KeyEvent.VK_LEFT)
+        {
+            sortMode = (sortMode - 1) % 4;
+        }
+
+        //left arrow - increase sortMode by one (looping around from 3 to 0)
+        else if (e.getKeyCode() == KeyEvent.VK_RIGHT)
+        {
+            sortMode = (sortMode + 1) % 4;
         }
     }
 
     public void render()
-    {
-
-    }
-
-    public void keyPressed()
     {
 
     }

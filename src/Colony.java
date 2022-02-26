@@ -2,17 +2,32 @@ import java.util.ArrayList;
 
 public class Colony
 {
+    /**
+     * the index of this colony in the simulation's colony arraylist
+     */
     private int colonyID;
 
-
-    private Vec2 corner;    //index of the tile in the upper left corner of the stash
+    /**
+     * index of the tile in the upper left corner of the stash
+     */
+    private Vec2 corner;
 
     private ArrayList<Tile> stash;
-    private int stashWidth;
 
+    /**
+     * how many tiles wide the stash is
+     */
+    private final int stashWidth;
+
+    /**
+     * whether or not this colony has been culled
+     */
     private boolean culled;
 
-    private ArrayList<Ant> ants; //all the ants associated with this colony
+    /**
+     * all the ants associated with this colony
+     */
+    private ArrayList<Ant> ants;
 
     public Colony(int colonyID, Vec2 corner, int stashWidth, Tile tiles[][])
     {
@@ -23,14 +38,15 @@ public class Colony
 
         culled = false;
 
+        ants = new ArrayList<>();
         // add all relevant tiles to the stash
         stash = new ArrayList<Tile>();
         for (int x = 0; x < stashWidth; x++)
         {
             for (int y = 0; y < stashWidth; y++)
             {
-                int trueX = (int)corner.x * stashWidth + x;
-                int trueY = (int)corner.y * stashWidth + y;
+                int trueX = (int)corner.x + x;
+                int trueY = (int)corner.y + y;
                 stash.add(tiles[trueX][trueY]);
             }
         }
@@ -126,7 +142,6 @@ public class Colony
     public void addAnt(Ant ant)
     {
         ants.add(ant);
-        ant.setColony(colonyID);
     }
 
     public void render(int tileWidth, int scaleFactor)
@@ -145,5 +160,24 @@ public class Colony
     public void deCull()
     {
         culled = false;
+    }
+
+    public Vec2 getCorner()
+    {
+        return corner;
+    }
+
+    /**
+     * returns how many tiles wide the stash is
+     * @return an int representing how many tiles wide the stash is
+     */
+    public int getStashWidth()
+    {
+        return stashWidth;
+    }
+
+    public int getColonyID()
+    {
+        return colonyID;
     }
 }

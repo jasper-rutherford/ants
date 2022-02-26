@@ -1,3 +1,5 @@
+import java.awt.event.KeyEvent;
+
 public class SettingsTab extends Tab
 {
     private Simulation simulation;
@@ -14,9 +16,11 @@ public class SettingsTab extends Tab
     private int remainingAnts;          //how many ants alive in the current generation
     private int antsPerGeneration;              //the total number of ants to be simulated per generation -
 
-    public SettingsTab()
+    public SettingsTab(Simulation simulation)
     {
-        simulation = null;
+        super();
+
+        this.simulation = simulation;
         currentGeneration = 0;
         generationsRemaining = 0;
         totalGenerations = 0;
@@ -32,9 +36,14 @@ public class SettingsTab extends Tab
 
     public void tick()
     {
+        //if the simulation has not been set up yet, then this tab has different behavior
         if (currentGeneration != 0)
         {
             //update stats
+        }
+        else
+        {
+
         }
     }
 
@@ -43,48 +52,23 @@ public class SettingsTab extends Tab
         //
     }
 
-    public void keyPressed()
+    /**
+     * reacts to the supplied key presses
+     * @param e a KeyEvent representing the key that has been pressed
+     */
+    public void keyPressed(KeyEvent e)
     {
-        if (currentGeneration == 0)
-        {
-            //press 1 to change the number of generations
-            if (key == '1')
-            {
-                changeTotalGenerations();
-            }
 
-            //press 2 to change the number of ticks per second
-            else if (key == '2')
-            {
-                changeTicksPerSecond();
-            }
-
-            //press 3 to change the number of ticks per generation
-            else if (key == '3')
-            {
-                changeTicksPerGeneration();
-            }
-
-            //press 4 to change the number of ants per generation
-            else if (key == '4')
-            {
-                changeAntsPerGeneration();
-            }
-        }
-        else
-        {
-
-        }
     }
 
     /**
      *   Updates the total number of generations by 1.
-     *   increases if shift not held, decreases if shift held
+     *   increases if increase is true, decreases otherwise
      *   will not go below 1
      */
-    private void changeTotalGenerations()
+    private void changeTotalGenerations(boolean increase)
     {
-        if (!shiftHeld)
+        if (increase)
         {
             totalGenerations++;
         }
@@ -96,12 +80,12 @@ public class SettingsTab extends Tab
 
     /**
      *   Updates the total number of ticks per second by 1.
-     *   increases if shift not held, decreases if shift held
+     *   increases if increase is true, decreases otherwise
      *   will not go below 1
      */
-    private void changeTicksPerSecond()
+    private void changeTicksPerSecond(boolean increase)
     {
-        if (!shiftHeld)
+        if (increase)
         {
             ticksPerSecond++;
         }
@@ -113,12 +97,12 @@ public class SettingsTab extends Tab
 
     /**
      *   Updates the total number of ticks per generation by 1.
-     *   increases if shift not held, decreases if shift held
+     *   increases if increase is true, decreases otherwise
      *   will not go below 1
      */
-    private void changeTicksPerGeneration()
+    private void changeTicksPerGeneration(boolean increase)
     {
-        if (!shiftHeld)
+        if (increase)
         {
             ticksPerGeneration++;
         }
@@ -130,12 +114,12 @@ public class SettingsTab extends Tab
 
     /**
      *   Updates the total number of ants per generation by 1.
-     *   increases if shift not held, decreases if shift held
+     *   increases if increase is true, decreases otherwise
      *   will not go below 1
      */
-    private void changeAntsPerGeneration()
+    private void changeAntsPerGeneration(boolean increase)
     {
-        if (!shiftHeld)
+        if (increase)
         {
             antsPerGeneration++;
         }

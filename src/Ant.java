@@ -1,3 +1,5 @@
+import java.awt.*;
+
 public class Ant
 {
     private int colonyID;
@@ -36,11 +38,16 @@ public class Ant
      */
     public Ant()
     {
+        generateStandardInitialStats();
+
+        generateGenome();
+    }
+
+    public void generateStandardInitialStats()
+    {
         age = 0;
         inputs = new double[numInputs];
         outputs = new double[numOutputs];
-
-        generateGenome();
     }
 
     /**
@@ -48,8 +55,25 @@ public class Ant
      */
     public Ant(Ant a1, Ant a2)
     {
-        age = 0;
-        //TODO
+        generateStandardInitialStats();
+
+        generateGenomeFrom(a1.genome, a2.genome);
+    }
+
+    public void generateGenomeFrom(double[][] genome1, double[][] genome2)
+    {
+        double[][][] parentGenomes = new double[2][genomeCols][genomeRows];
+        parentGenomes[0] = genome1;
+        parentGenomes[1] = genome2;
+
+        genome = new double[genomeCols][genomeRows];
+        for (int x = 0; x < genomeCols; x++)
+        {
+            for (int y = 0; y < genomeRows; y++)
+            {
+                genome[x][y] = Math.random() * 20000 - 10000; //generates a random value between -10,000 and 10,000
+            }
+        }
     }
 
     /**
@@ -62,7 +86,7 @@ public class Ant
         {
             for (int y = 0; y < genomeRows; y++)
             {
-                genome[x][y] = Math.random() * 20000 - 10000;
+                genome[x][y] = Math.random() * 20000 - 10000; //generates a random value between -10,000 and 10,000
             }
         }
     }
@@ -70,25 +94,31 @@ public class Ant
     /**
      * Resets the ant to the position/colonyID specified.
      */
-    public void reset(int colonyID)
+    public void reset(Vec2 corner, int stashWidth, int tileWidth)
     {
-        //TODO: make this work
-        this.colonyID = colonyID;
-
         health = maxHealth;
         hunger = 0;
         heldFood = 0;
-
-        //hey make this face away from the center of the stash that's fun
-        direction = new Vec2(0, 0);
-//        position = pos;
-
         speed = 0;
+
+        //TODO: make this face away from the center of the stash
+        direction = new Vec2(0, 0);
+
+        //set the ant's position to be a random location in the stash
+        position = new Vec2(Math.random() * stashWidth * tileWidth + corner.x * tileWidth, Math.random() * stashWidth * tileWidth + corner.y * tileWidth);
     }
 
-    public void render()
+    public void render(Graphics g)
     {
-        //TODO
+        //TODO make this better
+        //only render the living
+        if (health > 0)
+        {
+            //draw an x at the ant's position ¯\_(ツ)_/¯
+            g.setColor(new Color(0, 0, 0));
+            g.drawLine((int) position.x - 5, (int) position.y - 5, (int) position.x + 5, (int) position.y + 5);
+            g.drawLine((int) position.x + 5, (int) position.y - 5, (int) position.x - 5, (int) position.y + 5);
+        }
     }
 
     public void setColony(int colonyID)
@@ -113,7 +143,10 @@ public class Ant
 
     public void update()
     {
-        //TODO
+        if (health > 0)
+        {
+            //TODO
+        }
     }
 
     public int getNetStashContribution()

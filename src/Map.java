@@ -1,3 +1,4 @@
+import java.awt.*;
 
 public class Map
 {
@@ -9,19 +10,22 @@ public class Map
     //the maximum amount of food allowed to generate on a tile
     private int maxFood = 100;
 
-    public Map(int numColonies)
-    {
-        generateTiles(numColonies);
-    }
+    private boolean drawGrid; //whether or not to draw a grid of lines around the tiles
 
-    private void generateTiles(int numColonies)
+    public Map()
+    {
+        generateTiles();
+    }
+    //TODO: create setup method that sets up pheromones (and stashes?)
+
+    private void generateTiles()
     {
         tiles = new Tile[mapWidth][mapWidth];
         for (int x = 0; x < mapWidth; x++)
         {
             for (int y = 0; y < mapWidth; y++)
             {
-                tiles[x][y] = new Tile(numColonies, new Vec2(x, y), tileWidth, maxFood);
+                tiles[x][y] = new Tile(new Vec2(x, y), tileWidth, maxFood);
             }
         }
     }
@@ -29,21 +33,32 @@ public class Map
     /**
      *   Render the map and everything in it.
      */
-    public void render()
+    public void render(Graphics g)
     {
         //TODO: fix map rendering
-        //draw background
-//        fill(189, 173, 121);
-//        rect(10, 10, 650, 650);
-
-
+        //fill background color
+        g.setColor(new Color(189, 173, 121));
+        g.fillRect(10, 10, 650, 650);//TODO: make scaleable :/
 
         //render tiles
         for (Tile[] line : tiles)
         {
             for (Tile tile : line)
             {
-                tile.render(tileWidth, maxFood);
+                tile.render(g, tileWidth, maxFood);
+            }
+        }
+
+        //draw grid if setting is on
+        if (drawGrid)
+        {
+            for (int lcv = 0; lcv <= tiles.length; lcv++)
+            {
+                //draw horizontal line
+                g.drawLine(10, 10 + lcv * tileWidth, 10 + tiles.length * tileWidth, 10 + lcv * tileWidth);
+
+                //draw vertical line
+                g.drawLine(10 + lcv * tileWidth, 10, 10 + lcv * tileWidth, 10 + tiles.length * tileWidth);
             }
         }
     }

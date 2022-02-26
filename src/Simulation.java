@@ -8,22 +8,36 @@ public class Simulation
     private ArrayList<Colony> colonies;
     private ArrayList<Ant> ants;
 
-    private int generation;
+    private int generation; //current generation
+    private int generationsRemaining;
+
     private int ticksPerGeneration;
+    private int ticksRemainingInCurrentGeneration;
+    private int ticksPerSecond;
+
+    private boolean paused;
 
     //creates a blank simulation, waiting to be set up with setup()
     public Simulation()
     {
         this.generation = 0;
 
-        map = null;
-        colonies = null;
-        ants = null;
+        map = new Map();
+        colonies = new ArrayList<>();
+        ants = new ArrayList<>();
+
+        paused = true;
     }
 
-    public void setup(int numColonies, int numAnts)
+    public void setup(int numColonies, int numAnts, int generationsRemaining, int ticksPerGeneration, int ticksPerSecond)
     {
-        map = new Map(numColonies);
+        this.generationsRemaining = generationsRemaining;
+        this.ticksPerGeneration = ticksPerGeneration;
+        this.ticksRemainingInCurrentGeneration = ticksPerGeneration;
+        this.ticksPerSecond = ticksPerSecond;
+
+        //sets up the map (for now just fixes pheromones?)
+// TODO:       setupMap(); (create this method)
 
         //generate colonies
         generateColonies(numColonies);
@@ -36,6 +50,17 @@ public class Simulation
 
         //updates the generation counter
         generation++;
+        this.generationsRemaining--;
+    }
+
+    public ArrayList<Ant> getAnts()
+    {
+        return ants;
+    }
+
+    public int getTicksPerSecond()
+    {
+        return ticksPerSecond;
     }
 
     /**
@@ -95,6 +120,7 @@ public class Simulation
 
         //increase the generation counter by one
         generation++;
+        generationsRemaining--;
     }
 
     //cull and repopulate according to fitness.
@@ -170,35 +196,93 @@ public class Simulation
             //the id of the colony that the ant will be assigned to
             int colonyID = lcv % colonies.size();
 
-            //assign the ant to the colony
-            colonies.get(colonyID).addAnt(ant);
+            //the colony that the ant will be assigned to
+            Colony colony = colonies.get(colonyID);
 
-            //reset the ant relative to its new colony
-            ant.reset(colonyID);
+            //assign the ant to the colony
+            colony.addAnt(ant);
+
+            //assign the colony to the ant
+            ant.setColony(colonyID);
+
+            //reset the ant
+            ant.reset(colony.getCorner(), colony.getStashWidth(), map.getTileWidth());
         }
     }
 
     //updates all ants
     public void tick()
     {
-        if (ants != null)
+        //if there are ants (aka if the generation has been setup) and the simulation is not paused
+        if (ants != null && !paused)
         {
+            //get ready to count the amount of ants that are alive
+            int numLivingAnts = 0;
+
+            //for each ant
             for (Ant ant : ants)
             {
+                //update the ant
                 ant.update();
+
+                //check if the ant is alive
+                if (ant.getHealth() > 0)
+                {
+                    //update the count accordingly
+                    numLivingAnts++;
+                }
+            }
+
+            //decrease the number of ticks remaining in the current generation by one
+            ticksRemainingInCurrentGeneration--;
+
+            //if the generation is complete (aka there are no more ticks remaining or all the ants are dead)
+            if (ticksRemainingInCurrentGeneration == 0 || numLivingAnts == 0)
+            {
+                //do all the stuff that needs to be done when a generation is complete
+                completeGeneration();
             }
         }
+    }
+
+    /**
+     * does all the stuff that needs to be done when a generation finishes
+     */
+    public void completeGeneration()
+    {
+        //if this is the last generation
+        if (generationsRemaining == 0)
+        {
+            //pause the simulation
+            paused = true;
+        }
+
+        //if this is not the last generation
+        else
+        {
+            //advance to next generation of ants
+            nextGeneration();
+
+            //reset ticks remaining
+            ticksRemainingInCurrentGeneration = ticksPerGeneration;
+        }
+    }
+
+    /**
+     * gets the simulation's list of colonies
+     *
+     * @return an ArrayList of Colonys
+     */
+    public ArrayList<Colony> getColonies()
+    {
+        return colonies;
     }
 
     //renders the map and the ants
     public void render(Graphics g)
     {
-        //render map if it exists
-        if (map != null)
-        {
-            //render map
-            map.render();
-        }
+        //render map
+        map.render(g);
 
         //render ants only if ants exists
         if (ants != null)
@@ -206,8 +290,21 @@ public class Simulation
             //render ants
             for (Ant ant : ants)
             {
-                ant.render();
+                ant.render(g);
             }
+        }
+    }
+
+    public void togglePause()
+    {
+        if (ants.size() > 0)
+        {
+            paused = !paused;
+            System.out.println("pause toggled to " + paused);
+        }
+        else
+        {
+            System.out.println("did not toggle pause, simulation not yet setup");
         }
     }
 }

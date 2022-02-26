@@ -9,49 +9,73 @@ public class AntTab extends Tab
     private Ant lazy;           //the ant that has contributed the least to the stash
     private int numDead;        //the amount of ants that are dead
 
-    public AntTab()
+
+    /**
+     * creates an AntTab that draws statistics from a list of ants
+     * @param ants the ants to draw statistics from.
+     */
+    public AntTab(ArrayList<Ant> ants)
     {
-        ants = null;
+        //calls the Tab superclass' constructor
+        super();
+
+        //set this AntTab's ants to the supplied ants
+        this.ants = ants;
     }
 
     //recalculate the ant statistics
     public void tick()
     {
-        oldest = ants.get(0);
-        bootlicker = oldest;
-        lazy = oldest;
-        numDead = 0;
-
-        for (Ant ant : ants)
+        //only recalculates if there are ants in the list
+        if (ants.size() > 0)
         {
-            //find oldest ant
-            if (ant.getAge() > oldest.getAge())
-            {
-                oldest = ant;
-            }
+            //initializes all values to zero
+            oldest = ants.get(0);
+            bootlicker = ants.get(0);
+            lazy = ants.get(0);
+            numDead = 0;
 
-            //find bootlicker ant
-            if (ant.getNetStashContribution() > bootlicker.getNetStashContribution())
+            //loops through the list of ants and calculates each statistic
+            for (Ant ant : ants)
             {
-                bootlicker = ant;
-            }
+                //find oldest ant
+                if (ant.getAge() > oldest.getAge())
+                {
+                    oldest = ant;
+                }
 
-            //find lazy ant
-            else if (ant.getNetStashContribution() < lazy.getNetStashContribution())
-            {
-                lazy = ant;
-            }
+                //find bootlicker ant (the ant with the greatest net stash contribution)
+                if (ant.getNetStashContribution() > bootlicker.getNetStashContribution())
+                {
+                    bootlicker = ant;
+                }
 
-            //calculate how many ants are dead
-            if (ant.getHealth() <= 0)
-            {
-                numDead++;
+                //find lazy ant (the ant with the lowest net stash contribution)
+                else if (ant.getNetStashContribution() < lazy.getNetStashContribution())
+                {
+                    lazy = ant;
+                }
+
+                //calculate how many ants are dead
+                if (ant.getHealth() <= 0)
+                {
+                    numDead++;
+                }
             }
+        }
+
+        //if there are no ants, set all statistics accordingly
+        else
+        {
+            oldest = null;
+            bootlicker = null;
+            lazy = null;
+            numDead = 0;
         }
     }
 
     public void render()
     {
-
+        //TODO: render the antTab
     }
 }

@@ -1,16 +1,20 @@
+import java.awt.*;
+
 public class Tile
 {
     private int food;
     private int pheromones[];
     private Vec2 tilePos;   //this tile's position in the map's tiles array
     private Vec2 centerPos; //coordinates of the center of this tile
+    private boolean isStash; //TODO: make sure this goes with map's setup or colony's setup or something idk
 
     // private boolean isStash;
 
-    public Tile(int numColonies, Vec2 tilePos, int tileWidth, int maxFood)
+    public Tile(Vec2 tilePos, int tileWidth, int maxFood)
     {
         this.tilePos = tilePos;
         this.centerPos = new Vec2((tilePos.x + 0.5) * tileWidth + 10, (tilePos.y + 0.5) * tileWidth + 10);
+        isStash = false;
 
 
         //TODO: replace with cooler food function (also convert this to a method :/)
@@ -21,15 +25,11 @@ public class Tile
             distance = 100;
         }
         double trueFoodMax = -Math.sqrt(-(distance * distance) + (2 * distance * maxFood)) + maxFood;
-        food = (int)trueFoodMax;
+        food = (int) trueFoodMax;
         // food = (int) (Math.random() * trueFoodMax);
 
-        //initialize all pheromones to zero
-        pheromones = new int[numColonies];
-        for (int lcv = 0; lcv < numColonies; lcv++)
-        {
-            pheromones[lcv] = 0;
-        }
+        //initialize pheromones to null (must wait for setup(), depends on numColonies)
+        pheromones = null;
     }
 
     public int getFood()
@@ -37,20 +37,19 @@ public class Tile
         return food;
     }
 
-    public void render(int tileWidth, int maxFood)
+    public void render(Graphics g, int tileWidth, int maxFood)
     {
-        // if (isStash)
-        // {
-        //     noFill();
-        //     stroke(1);
-        //     rect(centerPos.x - tileWidth / 2, centerPos.y - tileWidth / 2, tileWidth, tileWidth);
-        // }
+        if (isStash)
+        {
+            //TODO: render stash differently
+//             noFill();
+//             stroke(1);
+//             rect(centerPos.x - tileWidth / 2, centerPos.y - tileWidth / 2, tileWidth, tileWidth);
+        }
 
-
-        //TODO: fix tile rendering
-//        fill(48, 89, 39, food * 1.0 / maxFood * 255);
-//        noStroke();
-//        rect(centerPos.x - tileWidth / 2, centerPos.y - tileWidth / 2, tileWidth, tileWidth);
+        //color is green with an opacity based on the amount of food on the tile
+        g.setColor(new Color(48, 89, 39, (int) (food * 1.0 / maxFood * 255)));
+        g.fillRect((int)(centerPos.x - tileWidth / 2.0), (int)(centerPos.y - tileWidth / 2.0), tileWidth, tileWidth);
     }
 
     public Vec2 getCenter()

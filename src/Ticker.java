@@ -15,7 +15,7 @@ public class Ticker extends JPanel
     private long lastTime;
     private double ticksPerSecond;      //The desired number of ticks per second
     private double ns;                  //Amount of time between ticks
-    private double delta = 0;           //the number of ticks due for completion
+    private double delta;               //the number of ticks due for completion
 
     private boolean restart = false;
 
@@ -23,11 +23,16 @@ public class Ticker extends JPanel
     {
         this.frame = frame;
 
+        //create a blank simulation
         simulation = new Simulation();
-        menu = new Menu(this);
 
+        //set up the menu with the simulation
+        menu = new Menu(simulation);
+
+        //setup tick stuff
         lastTime = System.nanoTime();
         setTicksPerSecond(30);
+        delta = 0;
     }
 
     public Menu getMenu()
@@ -46,6 +51,10 @@ public class Ticker extends JPanel
     public void tryTick()
     {
         long now = System.nanoTime();
+        if (ticksPerSecond != simulation.getTicksPerSecond())
+        {
+            setTicksPerSecond(simulation.getTicksPerSecond());
+        }
         delta += (now - lastTime) / ns;     //calculates how many ticks are due for completion
         lastTime = now;
         while (delta >= 1)                  //completes that many ticks
@@ -67,7 +76,7 @@ public class Ticker extends JPanel
 
         //fill a black background
         g.setColor(new Color(0, 0, 0));
-        g.fillRect(0, 0, 960, 960);
+        g.fillRect(0, 0, 980, 670); //TODO: fix this
 
         //render the menu
         menu.render(g);
@@ -91,5 +100,10 @@ public class Ticker extends JPanel
     {
         this.simulation = simulation;
         setTicksPerSecond(ticksPerSecond);
+    }
+
+    public Simulation getSimulation()
+    {
+        return simulation;
     }
 }

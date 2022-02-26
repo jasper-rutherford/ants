@@ -9,7 +9,7 @@ public class Frame extends JFrame
     {
         //initializes the frame
         setTitle("Ants");
-        setSize(960, 670);
+        setSize(980, 670 + 39); //TODO: the width isn't quite right.
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
     }
