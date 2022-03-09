@@ -28,7 +28,6 @@ public class Panel extends JPanel
      */
     public Panel(Simulation simulation, Menu menu)
     {
-            menu.tick();
         this.simulation = simulation;
         this.menu = menu;
     }
