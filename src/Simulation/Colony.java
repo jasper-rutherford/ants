@@ -50,15 +50,34 @@ public class Colony implements Comparable<Colony>
         generateAndSpawnNewWorkers(workerRadius);
     }
 
+//    /**
+//     * Creates a colony from two parents
+//     *
+//     * @param parent1      the first parent
+//     * @param parent2      the second parent
+//     * @param stashRadius  the radius of the queen's stash
+//     * @param workerRadius the radius of the workers' spawn area around the queen
+//     */
+//    public Colony(Colony parent1, Colony parent2, int stashRadius, int workerRadius)
+//    {
+//        //generate a new map
+//        map = new Map();
+//
+//        //setup the ants list
+//        ants = new ArrayList<>();
+//
+//        //spawn a queen randomly on the map
+//        spawnQueen(stashRadius, workerRadius);
+//
+//        //generate workers for this colony from the parents' workers and spawn them around the queen
+//        generateAndSpawnChildWorkers(parent1, parent2, workerRadius);
+//    }
+
     /**
-     * Creates a colony from two parents
-     *
-     * @param parent1      the first parent
-     * @param parent2      the second parent
-     * @param stashRadius  the radius of the queen's stash
-     * @param workerRadius the radius of the workers' spawn area around the queen
+     * creates a colony and assigns it the supplied workers
+     * @param workers the workers for the colony to start with
      */
-    public Colony(Colony parent1, Colony parent2, int stashRadius, int workerRadius)
+    public Colony(ArrayList<Worker> workers)
     {
         //generate a new map
         map = new Map();
@@ -67,68 +86,99 @@ public class Colony implements Comparable<Colony>
         ants = new ArrayList<>();
 
         //spawn a queen randomly on the map
-        spawnQueen(stashRadius, workerRadius);
+        spawnQueen(Simulation.stashRadius, Simulation.workerRadius);
 
-        //generate workers for this colony from the parents' workers and spawn them around the queen
-        generateAndSpawnChildWorkers(parent1, parent2, workerRadius);
+        //assign the workers tiles and add them to the list
+        assignWorkers(workers);
     }
 
-
     /**
-     * generates ants from the supplied parent colonies and spawns them around the queen
-     *
-     * @param parent1      the first parent colony
-     * @param parent2      the second parent colony
-     * @param workerRadius the radius of the worker' spawn area around the queen
+     * assign the workers tiles and add them to the list
+     * @param workers the workers to get assigned all up and over the place
      */
-    public void generateAndSpawnChildWorkers(Colony parent1, Colony parent2, int workerRadius)
+    public void assignWorkers(ArrayList<Worker> workers)
     {
         //the list of all the tiles where a worker should spawn
         ArrayList<Tile> spawnPoints = new ArrayList<>();
 
         //add all the tiles within workerRadius of the queen to the spawnPoints list
-        Tile.addTiles(queen.getTile(), workerRadius, spawnPoints);
+        Tile.addTiles(queen.getTile(), Simulation.workerRadius, spawnPoints);
 
         //don't spawn a worker on the queen
         spawnPoints.remove(queen.getTile());
 
-        //get the parents' ant lists
-        ArrayList<Ant> ants1 = parent1.ants;
-        ArrayList<Ant> ants2 = parent2.ants;
-
-        //ok so this little chunk gets an arraylist with all the indexes in ants2, and then randomizes that list
-        //this way each ant in the first list can be paired with a random ant in the second list.
-        //the queen's index is not in this list
-        ArrayList<Integer> ants2Indices = new ArrayList<>();
+        //combine each worker with a tile and add it to the list of ants
+        for (Worker worker : workers)
         {
-            for (int lcv = 0; lcv < ants2.size(); lcv++)
-            {
-                ants2Indices.add(lcv);
-            }
-            ants2Indices.remove(0);
-            Collections.shuffle(ants2Indices);
-        }
-
-        //populates each ant in ants1 with a random ant in ants2
-        for (int p1Index = 1; p1Index < ants1.size(); p1Index++)    //skips p1Index=0 because thats the queen
-        {
-            //gets the index for an ant in ants2 from the list of indexes.
-            int p2Index = ants2Indices.get(p1Index - 1); //its p1Index - 1 because the loop ranges from [1, ants.size() - 1] but the ants2Indices only has (ants.size() - 1) elements
-
-            //gets the parent workers
-            Worker worker1 = (Worker) ants1.get(p1Index);
-            Worker worker2 = (Worker) ants2.get(p2Index);
-
-            //spawns a new worker from those two parents
-            Worker child = new Worker(spawnPoints.get(0), worker1, worker2, 75); //TODO: fix age
-
-            //ensures that each worker spawns on a different tile
+            //get a tile to spawn on
+            Tile spawnTile = spawnPoints.get(0);
             spawnPoints.remove(0);
 
+            //set the worker to the tile appropriately
+            worker.setStartTile(spawnTile);
+            worker.setTile(spawnTile);
+            spawnTile.setAnt(worker);
+
             //adds the new worker to this colony's list
-            ants.add(child);
+            ants.add(worker);
         }
     }
+
+//    /**
+//     * generates ants from the supplied parent colonies and spawns them around the queen
+//     *
+//     * @param parent1      the first parent colony
+//     * @param parent2      the second parent colony
+//     * @param workerRadius the radius of the worker' spawn area around the queen
+//     */
+//    public void generateAndSpawnChildWorkers(Colony parent1, Colony parent2, int workerRadius)
+//    {
+//        //the list of all the tiles where a worker should spawn
+//        ArrayList<Tile> spawnPoints = new ArrayList<>();
+//
+//        //add all the tiles within workerRadius of the queen to the spawnPoints list
+//        Tile.addTiles(queen.getTile(), workerRadius, spawnPoints);
+//
+//        //don't spawn a worker on the queen
+//        spawnPoints.remove(queen.getTile());
+//
+//        //get the parents' ant lists
+//        ArrayList<Ant> ants1 = parent1.ants;
+//        ArrayList<Ant> ants2 = parent2.ants;
+//
+//        //ok so this little chunk gets an arraylist with all the indexes in ants2, and then randomizes that list
+//        //this way each ant in the first list can be paired with a random ant in the second list.
+//        //the queen's index is not in this list
+//        ArrayList<Integer> ants2Indices = new ArrayList<>();
+//        {
+//            for (int lcv = 0; lcv < ants2.size(); lcv++)
+//            {
+//                ants2Indices.add(lcv);
+//            }
+//            ants2Indices.remove(0);
+//            Collections.shuffle(ants2Indices);
+//        }
+//
+//        //populates each ant in ants1 with a random ant in ants2
+//        for (int p1Index = 1; p1Index < ants1.size(); p1Index++)    //skips p1Index=0 because thats the queen
+//        {
+//            //gets the index for an ant in ants2 from the list of indexes.
+//            int p2Index = ants2Indices.get(p1Index - 1); //its p1Index - 1 because the loop ranges from [1, ants.size() - 1] but the ants2Indices only has (ants.size() - 1) elements
+//
+//            //gets the parent workers
+//            Worker worker1 = (Worker) ants1.get(p1Index);
+//            Worker worker2 = (Worker) ants2.get(p2Index);
+//
+//            //spawns a new worker from those two parents
+//            Worker child = new Worker(spawnPoints.get(0), worker1, worker2, 75); //TODO: fix age
+//
+//            //ensures that each worker spawns on a different tile
+//            spawnPoints.remove(0);
+//
+//            //adds the new worker to this colony's list
+//            ants.add(child);
+//        }
+//    }
 
     /**
      * gets the colony's queen
@@ -145,6 +195,9 @@ public class Colony implements Comparable<Colony>
      */
     public void update()
     {
+        //update the map
+        map.update();
+
         //loop through all ants
         for (Ant ant : ants)
         {
@@ -282,5 +335,14 @@ public class Colony implements Comparable<Colony>
             return 1;
         }
         else return 0;
+    }
+
+    /**
+     * gets this colony's ants
+     * @return an ArrayList of Ants
+     */
+    public ArrayList<Ant> getAnts()
+    {
+        return ants;
     }
 }

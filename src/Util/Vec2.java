@@ -1,4 +1,4 @@
-package BigPicture;//Vector Library
+package Util;//Vector Library
 //CSCI 5611 Vector 2 Library [Example]
 // Stephen J. Guy <sjguy@umn.edu>
 

@@ -1,6 +1,6 @@
 package Simulation;
 
-import BigPicture.Vec2;
+import Util.Vec2;
 import MapStuff.Tile;
 
 import java.awt.*;
@@ -190,6 +190,22 @@ public class Map
 
                 //draw vertical line
                 g.drawLine(10 + lcv * tileWidth, 10, 10 + lcv * tileWidth, 10 + tiles.length * tileWidth);
+            }
+        }
+    }
+
+    /**
+     * updates the map
+     */
+    public void update()
+    {
+        //loop through all tiles
+        for (Tile[] line : tiles)
+        {
+            for (Tile tile : line)
+            {
+                //update each tile
+                tile.update();
             }
         }
     }

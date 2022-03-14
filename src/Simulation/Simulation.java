@@ -1,6 +1,8 @@
 package Simulation;
 
 import BigPicture.Frame;
+import Simulation.Ants.Ant;
+import Simulation.Ants.Worker;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -51,12 +53,12 @@ public class Simulation
     /**
      * the radius of each queen's stash
      */
-    private int stashRadius;
+    public static final int stashRadius = 2;
 
     /**
      * each queen's worker radius (this dictates how far away from the queen that workers can spawn)
      */
-    private int workerRadius;
+    public static final int workerRadius = 3;
 
     /**
      * whether or not the playback is paused
@@ -87,8 +89,6 @@ public class Simulation
         ticksPerGeneration = 120 * (int) ticksPerSecond;
         ticksRemainingInCurrentGeneration = ticksPerGeneration;
         numColonies = 100;
-        stashRadius = 2;
-        workerRadius = 3;
 
         paused = false;
         playback = true;
@@ -120,16 +120,19 @@ public class Simulation
     {
         while (generationsRemaining > 0)
         {
+            //repaint the screen
+            frame.repaint();
+
             //simulates the colonies
             simulateColonies();
-            System.out.println("Simulated Generation "+ generation);
+            System.out.println("Finished simulating generation " + generation);
 
             //update the generations remaining
-            generationsRemaining--;
+//            generationsRemaining--;
 
             //removes the bottom 50% of colonies (by fitness) and sorts the remaining colonies by fitness (best to worst)
             getBestColonies();
-            System.out.println("Got the best colonies");
+            System.out.println("The best colony produced " + colonies.get(0).getFitness() + " eggs");
 
             //displays/simulates the best colony of the generation to the screen
             showBestColony();
@@ -139,10 +142,8 @@ public class Simulation
             repopulateColonies();
             System.out.println("repopulated colonies\n");
 
-            //update the generation count
+            //update the generation coun
             generation++;
-
-            frame.repaint();
         }
     }
 
@@ -182,6 +183,11 @@ public class Simulation
 
             //decrease the number of ticks remaining by one
             ticksRemainingInCurrentGeneration--;
+
+            if (ticksRemainingInCurrentGeneration % ticksPerSecond == 0)
+            {
+                System.out.println(ticksRemainingInCurrentGeneration + " ticks remaining in generation " + generation);
+            }
         }
     }
 
@@ -242,7 +248,7 @@ public class Simulation
                 double ns = 1000000000 / ticksPerSecond;    //Amount of time between ticks
                 double delta = 0;                           //the number of ticks due for completion (this is a double!!! 🤯🤯🤯🤯)
 
-
+                int oldQueenHealth = best.getQueen().getHealth();
                 /*
                  * simulates the colony at a speed determined by ticksPerSecond
                  * simulates at ticksPerSecond ticks per second until:
@@ -266,6 +272,12 @@ public class Simulation
                         {
                             //updates the colony
                             best.update();
+
+                            if (oldQueenHealth != best.getQueen().getHealth())
+                            {
+                                oldQueenHealth = best.getQueen().getHealth();
+                                System.out.println("The queen has " + best.getQueen().getHealth() + " health");
+                            }
 
                             //renders any changes
                             frame.repaint();
@@ -291,32 +303,151 @@ public class Simulation
      */
     public void repopulateColonies()
     {
-        //where the repopulated colonies will temporarily be stored
-        ArrayList<Colony> repopulated = new ArrayList<>();
+        //combine all workers into one list (old list)
+        ArrayList<Worker> oldWorkers = getAllAnts(colonies);
 
-        //populate each colony with one other colony
-        for (int parent1index = 0; parent1index < colonies.size(); parent1index++)
-        {
-            //pick a random other colony as a parent
-            int parent2index = (int) (Math.random() * (colonies.size() - 1));
-            if (parent2index >= parent1index)
-            {
-                parent2index++;
-            }
+        //trim down to fit workers
+        trim(oldWorkers);
 
-            Colony parent1 = colonies.get(parent1index);
-            Colony parent2 = colonies.get(parent2index);
-            repopulated.add(new Colony(parent1, parent2, stashRadius, workerRadius));
-        }
+        //create another list (new workers) from this old list
+        ArrayList<Worker> newWorkers = populateAnts(oldWorkers);
 
-        //combine the temporary list onto the main one
-        colonies.addAll(repopulated);
+        //create new colonies using the ants from this new list
+        ArrayList<Colony> newColonies = createColoniesFromAnts(newWorkers);
 
-        //reset all colonies
+        //combine new colonies with all colonies
+        colonies.addAll(newColonies);
+
+//        //where the repopulated colonies will temporarily be stored
+//        ArrayList<Colony> repopulated = new ArrayList<>();
+//
+//        //populate each colony with one other colony
+//        for (int parent1index = 0; parent1index < colonies.size(); parent1index++)
+//        {
+//            //pick a random other colony as a parent
+//            int parent2index = (int) (Math.random() * (colonies.size() - 1));
+//            if (parent2index >= parent1index)
+//            {
+//                parent2index++;
+//            }
+//
+//            Colony parent1 = colonies.get(parent1index);
+//            Colony parent2 = colonies.get(parent2index);
+//            repopulated.add(new Colony(parent1, parent2, stashRadius, workerRadius));
+//        }
+//
+//        //combine the temporary list onto the main one
+//        colonies.addAll(repopulated);
+//
+//        //reset all colonies
+//        for (Colony colony : colonies)
+//        {
+//            colony.reset();
+//        }
+    }
+
+    /**
+     * creates a list of all the workers in all the provided colonies
+     *
+     * @param colonies an ArrayList of Colonies
+     * @return an ArrayList of Workers
+     */
+    public ArrayList<Worker> getAllAnts(ArrayList<Colony> colonies)
+    {
+        //start with an empty list
+        ArrayList<Worker> workers = new ArrayList<>();
+
+        //loop through all provided colonies
         for (Colony colony : colonies)
         {
-            colony.reset();
+            //loop through each colony's ants
+            for (Ant ant : colony.getAnts())
+            {
+                //if the ant is a worker
+                if (ant instanceof Worker)
+                {
+                    //add it to the list of workers
+                    workers.add((Worker) ant);
+                }
+            }
         }
+
+        //return the list of workers
+        return workers;
+    }
+
+    /**
+     * trims down the list of workers to the fittest workers
+     * @param workers the list to trim
+     */
+    public void trim(ArrayList<Worker> workers)
+    {
+
+    }
+
+    /**
+     * creates new workers from the supplied workers
+     * @param oldWorkers the ants to populate from
+     * @return an ArrayList of Workers
+     */
+    public ArrayList<Worker> populateAnts(ArrayList<Worker> oldWorkers)
+    {
+        //start with an empty list
+        ArrayList<Worker> newWorkers = new ArrayList<>();
+
+        //loop through all supplied workers
+        for (Worker worker1 : oldWorkers)
+        {
+            //get a random index in oldWorkers to repopulate with
+            int index = (int)(Math.random() * (oldWorkers.size() - 1));
+
+            //offset the index by one such that a worker will never reproduce with itself
+            if (index >= oldWorkers.indexOf(worker1))
+            {
+                index++;
+            }
+
+            //get the worker to reproduce with
+            Worker worker2 = oldWorkers.get(index);
+
+            newWorkers.add(new Worker(null, worker1, worker2, 0));
+        }
+
+        return newWorkers;
+    }
+
+    /**
+     * creates half of numColonies from the given list of workers
+     * @param newWorkers the workers to create colonies from
+     * @return an ArrayList of Colonies
+     */
+    public ArrayList<Colony> createColoniesFromAnts(ArrayList<Worker> newWorkers)
+    {
+        //start with empty list of colonies
+        ArrayList<Colony> newColonies = new ArrayList<>();
+
+        //calculate how many workers will be assigned to each colony
+        int numWorkersPerColony = (int)Math.pow(workerRadius * 2 + 1, 2) - 1;
+
+        //create numColonies / 2 colonies
+        for (int colNum = 0; colNum < numColonies / 2; colNum++)
+        {
+            //get the next numWorkersPerColony and add them to a list
+            ArrayList<Worker> chunk = new ArrayList<>();
+
+            for (int chunkNum = 0; chunkNum < numWorkersPerColony; chunkNum++)
+            {
+                //add a worker to the chunk
+                chunk.add(newWorkers.get(0));
+
+                //remove that same worker from the big list of workers
+                newWorkers.remove(0);
+            }
+
+            newColonies.add(new Colony(chunk));
+        }
+
+        return newColonies;
     }
 
     //renders best colony, if it is currently playing back.

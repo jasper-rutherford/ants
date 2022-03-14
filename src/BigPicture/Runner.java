@@ -34,4 +34,9 @@ public class Runner
         //start the simulation
         simulation.run();
     }
+
+    public static int left = 0;
+    public static int right = 0;
+    public static int down = 0;
+    public static int up = 0;
 }

@@ -1,6 +1,6 @@
 package Simulation.Ants;
 
-import BigPicture.Vec2;
+import Util.Vec2;
 import MapStuff.Tile;
 
 import java.awt.*;
@@ -54,12 +54,16 @@ public class Ant
 
         this.startTile = startTile;
         setTile(startTile);
-        startTile.setAnt(this);
+
+        if (startTile != null)
+        {
+            startTile.setAnt(this);
+        }
 
         int restrict = 64;
-        int r = (int)(Math.random() * (255 - restrict)) + restrict;
-        int g = (int)(Math.random() * (255 - restrict)) + restrict;
-        int b = (int)(Math.random() * (255 - restrict)) + restrict;
+        int r = (int) (Math.random() * (255 - restrict)) + restrict;
+        int g = (int) (Math.random() * (255 - restrict)) + restrict;
+        int b = (int) (Math.random() * (255 - restrict)) + restrict;
 
         color = new Color(r, g, b);
     }
@@ -78,6 +82,7 @@ public class Ant
      * adds the supplied value to the hungerBar
      * if hungerBar goes negative, it is set to 0 and the ant takes 1 damage
      * if the hungerBar goes above 100, it is set to 100
+     *
      * @param change the amount to change the hungerBar by
      */
     public void changeHungerBar(int change)
@@ -130,6 +135,7 @@ public class Ant
 
     /**
      * gets this ant's tile
+     *
      * @return the tile that this ant is on
      */
     public Tile getTile()
@@ -139,6 +145,7 @@ public class Ant
 
     /**
      * sets this ant's starting tile
+     *
      * @param tile the new tile for this ant to start on
      */
     public void setStartTile(Tile tile)
@@ -148,6 +155,7 @@ public class Ant
 
     /**
      * sets this ant's tile
+     *
      * @param tile the new tile for this ant to be on
      */
     public void setTile(Tile tile)

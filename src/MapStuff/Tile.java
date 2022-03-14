@@ -1,6 +1,7 @@
 package MapStuff;
 
-import BigPicture.Vec2;
+import BigPicture.Runner;
+import Util.Vec2;
 import Simulation.Ants.Ant;
 
 import java.awt.*;
@@ -74,10 +75,10 @@ public class Tile
      */
     public void generateFood()
     {
-        this.food = (int)(Math.random() * maxFood);
+        this.food = (int) (Math.random() * maxFood);
         this.startFood = food;
         //behold: the old function
-//        BigPicture.Vec2 mapCenter = new BigPicture.Vec2(650 / 2 + 10, 650 / 2 + 10);
+//        Util.Vec2 mapCenter = new Util.Vec2(650 / 2 + 10, 650 / 2 + 10);
 //        double distance = mapCenter.minus(centerPos).length() / 15;
 //        if (distance > 100)
 //        {
@@ -134,7 +135,7 @@ public class Tile
      * static function that allows you to add all the tiles within a certain radius from another tile to a list.
      * <p>
      * Note - this does check if the supplied tile is already in the list. it will not be duplicated.
-     *
+     * <p>
      * Note - this radius forms a square. The following radii form the following areas:
      * 1	9
      * 2	25
@@ -154,75 +155,94 @@ public class Tile
         {
             System.out.println("MapStuff.Tile addTiles method received a null tile. you should probably figure out why that happened");
         }
-
-        //if the supplied tile is not in the list
-        if (!list.contains(tile))
+        else
         {
-            //add it to the list
-            list.add(tile);
-        }
 
-        //add tiles directly to the left of the central tile to the list
-        Tile left = tile;
-        for (int lcv = 0; lcv < radius; lcv++)
-        {
-            left = left.getAdjacentTile(3);
-
-            //only add the tile to the list if it is not null
-            if (left != null)
+            //if the supplied tile is not in the list
+            if (!list.contains(tile))
             {
-                list.add(left);
+                //add it to the list
+                list.add(tile);
             }
-        }
 
-        //add tiles directly to the right of the central tile to the list
-        Tile right = tile;
-        for (int lcv = 0; lcv < radius; lcv++)
-        {
-            right = right.getAdjacentTile(1);
-
-            //only add the tile to the list if it is not null
-            if (right != null)
-            {
-                list.add(right);
-            }
-        }
-
-        //create a temporary list to add tiles to (this will be combined into list at the end)
-        ArrayList<Tile> tempList = new ArrayList<>();
-
-        //loop through this horizontal list of tiles to add all above/below tiles to the temporary list
-        for (Tile horizonTile : list)
-        {
-            //add all tiles above the central row of tiles to the temporary list
-            Tile up = horizonTile;
+            //add tiles directly to the left of the central tile to the list
+            Tile left = tile;
             for (int lcv = 0; lcv < radius; lcv++)
             {
-                up = up.getAdjacentTile(0);
-
-                //only add the tile to the list if it is not null
-                if (up != null)
+                //only get the next left tile if the current left tile is not null
+                if (left != null)
                 {
-                    tempList.add(up);
+                    left = left.getAdjacentTile(3);
+                }
+
+                //only add the new left tile to the list if it is not null
+                if (left != null)
+                {
+                    list.add(left);
                 }
             }
 
-            //add all tiles below the central row of tiles to the temporary list
-            Tile down = horizonTile;
+            //add tiles directly to the right of the central tile to the list
+            Tile right = tile;
             for (int lcv = 0; lcv < radius; lcv++)
             {
-                down = down.getAdjacentTile(2);
-
-                //only add the tile to the list if it is not null
-                if (down != null)
+                //only get the next right tile if the current right tile is not null
+                if (right != null)
                 {
-                    tempList.add(down);
+                    right = right.getAdjacentTile(1);
+                }
+
+                //only add the new right tile to the list if it is not null
+                if (right != null)
+                {
+                    list.add(right);
                 }
             }
-        }
 
-        //combine the temporary list onto the real list
-        list.addAll(tempList);
+            //create a temporary list to add tiles to (this will be combined into list at the end)
+            ArrayList<Tile> tempList = new ArrayList<>();
+
+            //loop through this horizontal list of tiles to add all above/below tiles to the temporary list
+            for (Tile horizonTile : list)
+            {
+                //add all tiles above the central row of tiles to the temporary list
+                Tile up = horizonTile;
+                for (int lcv = 0; lcv < radius; lcv++)
+                {
+                    //only get the next up tile if the current up tile is not null
+                    if (up != null)
+                    {
+                        up = up.getAdjacentTile(0);
+                    }
+
+                    //only add the new up tile to the list if it is not null
+                    if (up != null)
+                    {
+                        tempList.add(up);
+                    }
+                }
+
+                //add all tiles below the central row of tiles to the temporary list
+                Tile down = horizonTile;
+                for (int lcv = 0; lcv < radius; lcv++)
+                {
+                    //only get the next down tile if the current down tile is not null
+                    if (down != null)
+                    {
+                        down = down.getAdjacentTile(2);
+                    }
+
+                    //only add the new down tile to the list if it is not null
+                    if (down != null)
+                    {
+                        tempList.add(down);
+                    }
+                }
+            }
+
+            //combine the temporary list onto the real list
+            list.addAll(tempList);
+        }
     }
 
     /**
@@ -248,7 +268,24 @@ public class Tile
         g.fillRect((int) (centerPos.x - tileWidth / 2.0), (int) (centerPos.y - tileWidth / 2.0), tileWidth, tileWidth);
     }
 
-    //TODO: is this necessary?
+    /**
+     * updates the tile
+     */
+    public void update()
+    {
+        pheromoneCount--;
+
+        if (pheromoneCount < 0)
+        {
+            pheromoneCount = 0;
+        }
+    }
+
+    /**
+     * gets the coordinates of the center of this tile (in pixels)
+     *
+     * @return
+     */
     public Vec2 getCenter()
     {
         return centerPos;
@@ -300,4 +337,26 @@ public class Tile
     {
         return adjacents.get(index % 4);
     }
+
+    /**
+     * gets the index coordinates of this tile in the map
+     *
+     * @return the index coordinates of this tile in the map
+     */
+    public Vec2 getTilePos()
+    {
+        return tilePos;
+    }
+
+    /**
+     * gets this tile's pheromone count
+     *
+     * @return
+     */
+    public int getPheromoneCount()
+    {
+        return pheromoneCount;
+    }
+
+
 }
