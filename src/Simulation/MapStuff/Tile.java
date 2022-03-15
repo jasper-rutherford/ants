@@ -1,6 +1,5 @@
-package MapStuff;
+package Simulation.MapStuff;
 
-import BigPicture.Runner;
 import Util.Vec2;
 import Simulation.Ants.Ant;
 
@@ -23,6 +22,11 @@ public class Tile
      * the amount of pheromones on this tile
      */
     private int pheromoneCount;
+
+    /**
+     * the maximum amount of pheromones a tile can hold
+     */
+    private final int maxPheromoneCount = 100;
 
     /**
      * the ant on this tile (null if no ant is on the tile)
@@ -75,7 +79,8 @@ public class Tile
      */
     public void generateFood()
     {
-        this.food = (int) (Math.random() * maxFood);
+        this.food = Math.random() < .5 ? maxFood : 0;
+//        this.food = (int) (Math.random() * maxFood);
         this.startFood = food;
         //behold: the old function
 //        Util.Vec2 mapCenter = new Util.Vec2(650 / 2 + 10, 650 / 2 + 10);
@@ -119,7 +124,7 @@ public class Tile
 
         if (food < 0)
         {
-            System.out.println("MapStuff.Tile at " + tilePos + " has less than zero food");
+            System.out.println("Simulation.MapStuff.Tile at " + tilePos + " has less than zero food");
         }
     }
 
@@ -128,7 +133,10 @@ public class Tile
      */
     public void addPheromone()
     {
-        pheromoneCount++;
+        if (pheromoneCount < maxPheromoneCount)
+        {
+            pheromoneCount++;
+        }
     }
 
     /**
@@ -147,13 +155,13 @@ public class Tile
      *
      * @param tile   the tile at the center. tiles that are near this tile will be added to the list
      * @param radius the radius.
-     * @param list   the list to add tiles to. (must be an arrayList of MapStuff.Tile's)
+     * @param list   the list to add tiles to. (must be an arrayList of Simulation.MapStuff.Tile's)
      */
     public static void addTiles(Tile tile, int radius, ArrayList<Tile> list)
     {
         if (tile == null)
         {
-            System.out.println("MapStuff.Tile addTiles method received a null tile. you should probably figure out why that happened");
+            System.out.println("Simulation.MapStuff.Tile addTiles method received a null tile. you should probably figure out why that happened");
         }
         else
         {
@@ -358,5 +366,23 @@ public class Tile
         return pheromoneCount;
     }
 
+    /**
+     * gets this tile's maximum food
+     *
+     * @return the max food this tile can hold
+     */
+    public int getMaxFood()
+    {
+        return maxFood;
+    }
 
+    /**
+     * gets this tile's maximum pheromone count
+     *
+     * @return the max pheromones allowed on this tile
+     */
+    public int getMaxPheromoneCount()
+    {
+        return maxPheromoneCount;
+    }
 }

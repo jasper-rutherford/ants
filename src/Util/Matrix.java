@@ -5,7 +5,7 @@ package Util;
  */
 public class Matrix
 {
-    private double mutationChance = 0.001;
+    private double mutationChance = 0.01;
     private int width;
     private int height;
     private double min;

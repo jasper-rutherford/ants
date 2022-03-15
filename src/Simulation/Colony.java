@@ -1,11 +1,11 @@
 package Simulation;
 
+import Simulation.MapStuff.Map;
 import Simulation.Ants.*;
-import MapStuff.Tile;
+import Simulation.MapStuff.Tile;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class Colony implements Comparable<Colony>
 {
@@ -75,6 +75,7 @@ public class Colony implements Comparable<Colony>
 
     /**
      * creates a colony and assigns it the supplied workers
+     *
      * @param workers the workers for the colony to start with
      */
     public Colony(ArrayList<Worker> workers)
@@ -94,6 +95,7 @@ public class Colony implements Comparable<Colony>
 
     /**
      * assign the workers tiles and add them to the list
+     *
      * @param workers the workers to get assigned all up and over the place
      */
     public void assignWorkers(ArrayList<Worker> workers)
@@ -339,6 +341,7 @@ public class Colony implements Comparable<Colony>
 
     /**
      * gets this colony's ants
+     *
      * @return an ArrayList of Ants
      */
     public ArrayList<Ant> getAnts()

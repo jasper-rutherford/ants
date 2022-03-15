@@ -1,13 +1,13 @@
 package Simulation.Ants;
 
-import MapStuff.Tile;
+import Simulation.MapStuff.Tile;
 import Simulation.Simulation;
 import Util.Matrix;
 import Util.Vec2;
 
 import java.util.ArrayList;
 
-public class Worker extends Ant
+public class Worker extends Ant implements Comparable<Worker>
 {
     //the generation this ant was born in
     private int age;
@@ -33,12 +33,12 @@ public class Worker extends Ant
     private Matrix inputs;
 
     //hidden layer 1
-    private final int numHiddenNeurons1 = 50;
+    private final int numHiddenNeurons1 = 10;
     private Matrix hiddenWeights1;
     private Matrix hiddenBiases1;
 
     //hidden layer 2
-    private final int numHiddenNeurons2 = 50;
+    private final int numHiddenNeurons2 = 10;
     private Matrix hiddenWeights2;
     private Matrix hiddenBiases2;
 
@@ -50,7 +50,13 @@ public class Worker extends Ant
     //the output values
     private ArrayList<Double> outputs;
 
-    private int fitness;
+    private int lifeTime;
+
+    private int stashContribution;
+
+    private int gluttony;
+
+    private final int stashContributionWorth = 50;
 
     /**
      * default constructor for the worker class
@@ -61,7 +67,9 @@ public class Worker extends Ant
 
         age = 0;
         foodHeld = false;
-        fitness = 0;
+        lifeTime = 0;
+        stashContribution = 0;
+        gluttony = 0;
 
         //generate random neuron values
         generateNeurons();
@@ -75,7 +83,9 @@ public class Worker extends Ant
     {
         super.reset();
         foodHeld = false;
-        fitness = 0;
+        lifeTime = 0;
+        stashContribution = 0;
+        gluttony = 0;
     }
 
     /**
@@ -91,7 +101,9 @@ public class Worker extends Ant
 
         age = 0;
         foodHeld = false;
-        fitness = 0;
+        lifeTime = 0;
+        stashContribution = 0;
+        gluttony = 0;
 
         hiddenWeights1 = new Matrix(parent1.hiddenWeights1, parent2.hiddenWeights1);
         hiddenBiases1 = new Matrix(parent1.hiddenBiases1, parent2.hiddenBiases1);
@@ -130,7 +142,7 @@ public class Worker extends Ant
         if (health > 0)
         {
             think();
-            fitness++;
+            lifeTime++;
         }
     }
 
@@ -166,9 +178,9 @@ public class Worker extends Ant
         ArrayList<Double> inputList = getInputsFromTiles(organized);
 
         //add this worker's stats to the inputList
-        inputList.add(foodHeld ? 1.0 : 0.0);        //add a 1 if holding food, add a zero if not
-        inputList.add((double) hungerBar);           //add the worker's hungerbar
-        inputList.add((double) health);              //add the worker's health
+        inputList.add(foodHeld ? 1.0 : 0.0);                //add a 1 if holding food, add a zero if not
+        inputList.add((double) hungerBar / maxHungerBar);   //add the worker's hungerbar
+        inputList.add((double) health / maxHealth);         //add the worker's health
 
         //convert the inputList to an array for matrix creation
         double[][] inputArray = new double[numInputs][1];
@@ -231,10 +243,10 @@ public class Worker extends Ant
                 else
                 {
                     //add pheromone count
-                    inputList.add((double) aTile.getPheromoneCount());
+                    inputList.add((double) aTile.getPheromoneCount() / aTile.getMaxPheromoneCount());
 
                     //add food count
-                    inputList.add((double) aTile.getFood());
+                    inputList.add((double) aTile.getFood() / aTile.getMaxFood());
 
                     //if the tile has no ant
                     if (aTile.getAnt() == null)
@@ -349,7 +361,36 @@ public class Worker extends Ant
         if (foodHeld)
         {
             foodHeld = false;
-            changeHungerBar(10);
+            changeHungerBar(foodWorth);
+        }
+    }
+
+    /**
+     * adds the supplied value to the hungerBar
+     * if hungerBar goes negative, it is set to 0 and the ant takes 1 damage
+     * if the hungerBar goes above 100, it is set to 100
+     *
+     * @param change the amount to change the hungerBar by
+     */
+    public void changeHungerBar(int change)
+    {
+        //add the amount to the hungerBar
+        hungerBar += change;
+
+        //if hungerBar goes negative, it is set to 0 and the ant takes 1 damage
+        if (hungerBar < 0)
+        {
+            hungerBar = 0;
+            health--;
+        }
+
+        //if the hungerBar goes above 100, it is set to 100
+        else if (hungerBar > 100)
+        {
+            System.out.println("Gluttony!");
+            gluttony += hungerBar - 100;
+
+            hungerBar = 100;
         }
     }
 
@@ -374,7 +415,7 @@ public class Worker extends Ant
                 if (closeToQueen())
                 {
                     //decrease the ant's fitness
-                    fitness--;
+                    stashContribution--;
                 }
             }
         }
@@ -385,8 +426,8 @@ public class Worker extends Ant
      */
     public void drop()
     {
-        //if the worker is holding food
-        if (foodHeld)
+        //if the worker is holding food and the current tile has less than max food
+        if (foodHeld && tile.getFood() < tile.getMaxFood())
         {
             //add one food to the worker's current tile
             tile.changeFood(1);
@@ -398,7 +439,7 @@ public class Worker extends Ant
             if (closeToQueen())
             {
                 //increase the ant's fitness
-                fitness++;
+                stashContribution++;
             }
         }
     }
@@ -453,6 +494,41 @@ public class Worker extends Ant
 
             //set this ant's tile to the new tile
             tile = toTile;
+        }
+    }
+
+    @Override
+    public int compareTo(Worker worker)
+    {
+        if (getFitness() > worker.getFitness())
+        {
+            return -1;
+        }
+        if (getFitness() < worker.getFitness())
+        {
+            return 1;
+        }
+        else return 0;
+    }
+
+    public int getFitness()
+    {
+        return lifeTime + stashContribution * stashContributionWorth - gluttony;
+    }
+
+    public String toString()
+    {
+        return "\tFitness:\t\t\t" + getFitness() +
+                "\n\tStash Contribution:\t" + stashContribution +
+                "\n\tGluttony:\t\t\t" + gluttony +
+                "\n\tLifetime:\t\t\t" + lifeTime;
+    }
+
+    public void printOutputs()
+    {
+        for (Double dub : outputs)
+        {
+            System.out.println(dub);
         }
     }
 }

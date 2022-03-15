@@ -3,7 +3,7 @@ package Simulation.Ants;
 import java.awt.*;
 import java.util.ArrayList;
 
-import MapStuff.Tile;
+import Simulation.MapStuff.Tile;
 
 public class Queen extends Ant
 {
@@ -113,7 +113,7 @@ public class Queen extends Ant
                 stashTile.setFood(stashTile.getFood() - 1);
 
                 //increase this ant's hungerBar by 10
-                changeHungerBar(10);
+                changeHungerBar(foodWorth);
 
                 //mark the check as true
                 ate = true;

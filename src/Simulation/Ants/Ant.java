@@ -1,7 +1,7 @@
 package Simulation.Ants;
 
 import Util.Vec2;
-import MapStuff.Tile;
+import Simulation.MapStuff.Tile;
 
 import java.awt.*;
 
@@ -10,7 +10,7 @@ public class Ant
     /**
      * the maximum health an ant can have
      */
-    protected int maxHealth = 10;
+    protected int maxHealth = 100;
 
     /**
      * the health the ant currently has
@@ -41,6 +41,8 @@ public class Ant
      * this ant's color
      */
     protected Color color;
+
+    protected final int foodWorth = 10;
 
     /**
      * Default constructor for the ant class.
@@ -100,6 +102,7 @@ public class Ant
         //if the hungerBar goes above 100, it is set to 100
         else if (hungerBar > 100)
         {
+            System.out.println("gluttony :*(");
             hungerBar = 100;
         }
     }

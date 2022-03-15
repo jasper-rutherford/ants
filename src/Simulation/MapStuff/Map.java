@@ -1,7 +1,6 @@
-package Simulation;
+package Simulation.MapStuff;
 
 import Util.Vec2;
-import MapStuff.Tile;
 
 import java.awt.*;
 import java.util.ArrayList;

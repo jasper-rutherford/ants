@@ -58,7 +58,7 @@ public class Simulation
     /**
      * each queen's worker radius (this dictates how far away from the queen that workers can spawn)
      */
-    public static final int workerRadius = 3;
+    public static final int workerRadius = 2;
 
     /**
      * whether or not the playback is paused
@@ -159,6 +159,11 @@ public class Simulation
         //loops until tick limit is hit or until all queens are dead
         while (ticksRemainingInCurrentGeneration > 0 && numDeadQueens < colonies.size())
         {
+            if (ticksRemainingInCurrentGeneration % (ticksPerSecond * 10) == 0)
+            {
+                System.out.println(ticksRemainingInCurrentGeneration + " ticks remaining in generation " + generation);
+            }
+
             //reset number of dead queens
             numDeadQueens = 0;
 
@@ -183,11 +188,6 @@ public class Simulation
 
             //decrease the number of ticks remaining by one
             ticksRemainingInCurrentGeneration--;
-
-            if (ticksRemainingInCurrentGeneration % ticksPerSecond == 0)
-            {
-                System.out.println(ticksRemainingInCurrentGeneration + " ticks remaining in generation " + generation);
-            }
         }
     }
 
@@ -196,25 +196,25 @@ public class Simulation
      */
     public void getBestColonies()
     {
-        //removes the bottom 50%
-        for (int lcv = 0; lcv < numColonies / 2; lcv++)
-        {
-            //get the colony with the lowest fitness
-            int minFitness = colonies.get(0).getFitness();
-            int mindex = 0; //like min index? get it?
-
-            for (int checkIndex = 1; checkIndex < colonies.size(); checkIndex++)
-            {
-                int checkFitness = colonies.get(checkIndex).getFitness();
-                if (checkFitness < minFitness)
-                {
-                    mindex = checkIndex;
-                }
-            }
-
-            //remove the worst colony from the list
-            colonies.remove(mindex);
-        }
+//        //removes the bottom 50%
+//        for (int lcv = 0; lcv < numColonies / 2; lcv++)
+//        {
+//            //get the colony with the lowest fitness
+//            int minFitness = colonies.get(0).getFitness();
+//            int mindex = 0; //like min index? get it?
+//
+//            for (int checkIndex = 1; checkIndex < colonies.size(); checkIndex++)
+//            {
+//                int checkFitness = colonies.get(checkIndex).getFitness();
+//                if (checkFitness < minFitness)
+//                {
+//                    mindex = checkIndex;
+//                }
+//            }
+//
+//            //remove the worst colony from the list
+//            colonies.remove(mindex);
+//        }
 
         //sort remaining colonies by fitness, best to worst
         Collections.sort(colonies);
@@ -306,17 +306,20 @@ public class Simulation
         //combine all workers into one list (old list)
         ArrayList<Worker> oldWorkers = getAllAnts(colonies);
 
-        //trim down to fit workers
+        //trim down to fittest 50% of workers
         trim(oldWorkers);
 
         //create another list (new workers) from this old list
         ArrayList<Worker> newWorkers = populateAnts(oldWorkers);
 
-        //create new colonies using the ants from this new list
-        ArrayList<Colony> newColonies = createColoniesFromAnts(newWorkers);
+        //combine new workers with old workers
+        oldWorkers.addAll(newWorkers);
 
-        //combine new colonies with all colonies
-        colonies.addAll(newColonies);
+        //shuffle the cumulative list
+        Collections.shuffle(oldWorkers);
+
+        //create new colonies using the workers from this new cumulative list of workers
+        colonies = createColoniesFromAnts(oldWorkers);
 
 //        //where the repopulated colonies will temporarily be stored
 //        ArrayList<Colony> repopulated = new ArrayList<>();
@@ -378,15 +381,26 @@ public class Simulation
 
     /**
      * trims down the list of workers to the fittest workers
+     *
      * @param workers the list to trim
      */
     public void trim(ArrayList<Worker> workers)
     {
+        //sort the workers by fitness
+        Collections.sort(workers);
+        workerStats(workers);
 
+        //delete the back half of the list
+        int len = workers.size() / 2;
+        for (int lcv = 0; lcv < len; lcv++)
+        {
+            workers.remove(len);
+        }
     }
 
     /**
      * creates new workers from the supplied workers
+     *
      * @param oldWorkers the ants to populate from
      * @return an ArrayList of Workers
      */
@@ -399,7 +413,7 @@ public class Simulation
         for (Worker worker1 : oldWorkers)
         {
             //get a random index in oldWorkers to repopulate with
-            int index = (int)(Math.random() * (oldWorkers.size() - 1));
+            int index = (int) (Math.random() * (oldWorkers.size() - 1));
 
             //offset the index by one such that a worker will never reproduce with itself
             if (index >= oldWorkers.indexOf(worker1))
@@ -418,6 +432,7 @@ public class Simulation
 
     /**
      * creates half of numColonies from the given list of workers
+     *
      * @param newWorkers the workers to create colonies from
      * @return an ArrayList of Colonies
      */
@@ -427,10 +442,10 @@ public class Simulation
         ArrayList<Colony> newColonies = new ArrayList<>();
 
         //calculate how many workers will be assigned to each colony
-        int numWorkersPerColony = (int)Math.pow(workerRadius * 2 + 1, 2) - 1;
+        int numWorkersPerColony = (int) Math.pow(workerRadius * 2 + 1, 2) - 1;
 
-        //create numColonies / 2 colonies
-        for (int colNum = 0; colNum < numColonies / 2; colNum++)
+        //create numColonies colonies
+        for (int colNum = 0; colNum < numColonies; colNum++)
         {
             //get the next numWorkersPerColony and add them to a list
             ArrayList<Worker> chunk = new ArrayList<>();
@@ -482,5 +497,22 @@ public class Simulation
     {
         playbackLoop = !playbackLoop;
         System.out.println("playback toggled to " + playbackLoop);
+    }
+
+    public void workerStats(ArrayList<Worker> workers)
+    {
+        System.out.println("\nBest Ant:\n" + workers.get(0));
+        System.out.println("Median Ant:\n" + workers.get(workers.size() / 2));
+        System.out.println("Worst Ant:\n" + workers.get(workers.size() - 1));
+
+        double avgFitness = 0;
+        for (Worker worker : workers)
+        {
+            avgFitness += worker.getFitness();
+        }
+
+        avgFitness = ((int) (avgFitness / workers.size() * 100)) / 100.0;
+
+        System.out.println("Average Fitness:\t\t" + avgFitness);
     }
 }
