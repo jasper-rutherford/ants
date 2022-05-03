@@ -468,7 +468,6 @@ public class Simulation
     //renders best colony, if it is currently playing back.
     public void render(Graphics g)
     {
-        //TODO: render something under the map (something like "currently simulating")
         colonies.get(0).render(g);
     }
 

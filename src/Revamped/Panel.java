@@ -1,7 +1,4 @@
-package BigPicture;
-
-import MenuStuff.Menu;
-import Simulation.Simulation;
+package Revamped;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,24 +9,17 @@ import java.awt.*;
 public class Panel extends JPanel
 {
     /**
-     * Handles key inputs. Panel just needs to render it.
-     */
-    private final Menu menu;
-
-    /**
      * runs ant simulations. Panel just needs to render it.
      */
-    private final Simulation simulation;
+    private final Map map;
 
     /**
      * Constructor for the panel.
-     * @param simulation the simulation to render
-     * @param menu the menu to render
+     * @param map the simulation to render
      */
-    public Panel(Simulation simulation, Menu menu)
+    public Panel(Map map)
     {
-        this.simulation = simulation;
-        this.menu = menu;
+        this.map = map;
     }
 
     /**
@@ -43,11 +33,9 @@ public class Panel extends JPanel
 
         //fill a black background
         g.setColor(new Color(0, 0, 0));
+        g.fillRect(0, 0, 980, 670); //TODO: fix this
 
         //render the simulation
-        simulation.render(g);
-
-        //render the menu
-        menu.render(g);
+        map.render(g);
     }
 }

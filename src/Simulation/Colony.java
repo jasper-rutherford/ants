@@ -172,7 +172,6 @@ public class Colony implements Comparable<Colony>
 //            Worker worker2 = (Worker) ants2.get(p2Index);
 //
 //            //spawns a new worker from those two parents
-//            Worker child = new Worker(spawnPoints.get(0), worker1, worker2, 75); //TODO: fix age
 //
 //            //ensures that each worker spawns on a different tile
 //            spawnPoints.remove(0);

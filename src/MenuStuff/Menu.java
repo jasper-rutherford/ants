@@ -27,14 +27,12 @@ public class Menu implements KeyListener
 
     /**
      * ticks the menu.
-     * Currently does nothing (TODO)
      */
     public void tick()
     {
     }
 
     /**
-     * renders all the tabs in the menu (TODO)
      *
      * @param g a graphics object for use with rendering
      */
@@ -90,7 +88,6 @@ public class Menu implements KeyListener
         // G - toggles grid lines display
         else if (e.getKeyChar() == 'g' || e.getKeyChar() == 'G')
         {
-//            simulation.getMap().toggleDrawGrid(); TODO: fix this (gridlines)
         }
 
         // L - toggles playback loop
@@ -108,7 +105,6 @@ public class Menu implements KeyListener
         // R - resets the playback colony to the beginning
         else if (e.getKeyChar() == 'r' || e.getKeyChar() == 'R')
         {
-            //TODO: reset functionality?
             System.out.println("no reset functionality yet :) TODO");
         }
 
@@ -118,7 +114,6 @@ public class Menu implements KeyListener
             System.exit(0);
         }
 
-        // All other key input is sent to the selected tab todo
         else
         {
 //            tabs[currentTab].keyPressed(e);

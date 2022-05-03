@@ -80,6 +80,5 @@ public class AntTab extends Tab
 
     public void render()
     {
-        //TODO: render the antTab
     }
 }

@@ -1,4 +1,4 @@
-package BigPicture;
+package Revamped;
 
 import javax.swing.*;
 
@@ -7,11 +7,15 @@ import javax.swing.*;
  */
 public class Frame extends JFrame
 {
-    public Frame()
+    public Frame(Panel panel)
     {
         //initializes the frame
         setTitle("Simulation/Ants");
+        setSize(980, 670 + 39); //TODO: the width isn't quite right.
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+
+        //add the panel
+        add(panel);
     }
 }

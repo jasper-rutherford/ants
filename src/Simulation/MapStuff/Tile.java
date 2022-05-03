@@ -75,7 +75,6 @@ public class Tile
 
     /**
      * sets this tile's food according to some cool food function
-     * (TODO)
      */
     public void generateFood()
     {

@@ -109,7 +109,6 @@ public class Ant
 
     public void render(Graphics g)
     {
-        //TODO make this better (not just an x)
         //only render the living
         if (health > 0)
         {
