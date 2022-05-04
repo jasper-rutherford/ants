@@ -12,7 +12,7 @@ public class Tile
     /**
      * How wide a square should be when rendered
      */
-    private final int squareWidth = 20;
+    public static final int squareWidth = 20;
 
     /**
      * A list of ants who are on this tile
@@ -33,13 +33,13 @@ public class Tile
      * How many food pheromones are on this tile
      * Theoretically these lead to food
      */
-    private double foodPheromones;
+//    private double foodPheromones;
 
     /**
      * How many colony pheromones are on this tile
      * Theoretically these lead back to the stash
      */
-    private double colonyPheromones;
+//    private double colonyPheromones;
 
     /**
      * A list of all tiles who are adjacent to this tile
@@ -48,19 +48,26 @@ public class Tile
 
     private ArrayList<Edge> edges;
 
+    private int x;
+
+    private int y;
+
     /**
      * Default constructor
      * Defaults to basically zero values for everything
      */
-    public Tile()
+    public Tile(int x, int y)
     {
         edges = new ArrayList<>();
         ants = new ArrayList<>();
         isStash = false;
         food = 0;
-        foodPheromones = 1;
-        colonyPheromones = 1;
+//        foodPheromones = 1;
+//        colonyPheromones = 1;
         adjacentTiles = new ArrayList<>();
+
+        this.x = x;
+        this.y = y;
     }
 
     /**
@@ -138,20 +145,20 @@ public class Tile
      *
      * @return an integer representing how many food pheromones are on this tile
      */
-    public double getFoodPheromones()
-    {
-        return foodPheromones;
-    }
+//    public double getFoodPheromones()
+//    {
+//        return foodPheromones;
+//    }
 
     /**
      * Sets the amount of food pheromones on this tile
      *
      * @param foodPheromones the amount of food pheromones to be on this tile
      */
-    public void setFoodPheromones(double foodPheromones)
-    {
-        this.foodPheromones = foodPheromones;
-    }
+//    public void setFoodPheromones(double foodPheromones)
+//    {
+//        this.foodPheromones = foodPheromones;
+//    }
 
     /**
      * Change how many food pheromones are on this tile by the supplied amount
@@ -159,14 +166,14 @@ public class Tile
      *
      * @param change the amount of food pheromones to add to this tile
      */
-    public void changeFoodPheromones(double change)
-    {
-        foodPheromones += change;
-        if (foodPheromones < 0)
-        {
-            foodPheromones = 0;
-        }
-    }
+//    public void changeFoodPheromones(double change)
+//    {
+//        foodPheromones += change;
+//        if (foodPheromones < 0)
+//        {
+//            foodPheromones = 0;
+//        }
+//    }
 
     /**
      * Multiplies the amount of food pheromones on this tile by the provided amount
@@ -174,35 +181,35 @@ public class Tile
      *
      * @param change how much to multiply the pheromones on this tile by
      */
-    public void multiplyFoodPheromones(double change)
-    {
-        foodPheromones *= change;
-
-        if (foodPheromones < 1)
-        {
-            foodPheromones = 1;
-        }
-    }
+//    public void multiplyFoodPheromones(double change)
+//    {
+//        foodPheromones *= change;
+//
+//        if (foodPheromones < 1)
+//        {
+//            foodPheromones = 1;
+//        }
+//    }
 
     /**
      * Gets how many colony pheromones are on this tile
      *
      * @return an integer representing how many colony pheromones are on this tile
      */
-    public double getColonyPheromones()
-    {
-        return colonyPheromones;
-    }
+//    public double getColonyPheromones()
+//    {
+//        return colonyPheromones;
+//    }
 
     /**
      * Sets the amount of colony pheromones on this tile
      *
      * @param colonyPheromones the amount of colony pheromones to be on this tile
      */
-    public void setColonyPheromones(double colonyPheromones)
-    {
-        this.colonyPheromones = colonyPheromones;
-    }
+//    public void setColonyPheromones(double colonyPheromones)
+//    {
+//        this.colonyPheromones = colonyPheromones;
+//    }
 
     /**
      * Change how many colony pheromones are on this tile by the supplied amount
@@ -210,14 +217,14 @@ public class Tile
      *
      * @param change the amount of colony pheromones to add to this tile
      */
-    public void changeColonyPheromones(double change)
-    {
-        colonyPheromones += change;
-        if (colonyPheromones < 0)
-        {
-            colonyPheromones = 0;
-        }
-    }
+//    public void changeColonyPheromones(double change)
+//    {
+//        colonyPheromones += change;
+//        if (colonyPheromones < 0)
+//        {
+//            colonyPheromones = 0;
+//        }
+//    }
 
     /**
      * Multiplies the amount of colony pheromones on this tile by the provided amount
@@ -225,15 +232,15 @@ public class Tile
      *
      * @param change how much to multiply the pheromones on this tile by
      */
-    public void multiplyColonyPheromones(double change)
-    {
-        colonyPheromones *= change;
-
-        if (colonyPheromones < 1)
-        {
-            colonyPheromones = 1;
-        }
-    }
+//    public void multiplyColonyPheromones(double change)
+//    {
+//        colonyPheromones *= change;
+//
+//        if (colonyPheromones < 1)
+//        {
+//            colonyPheromones = 1;
+//        }
+//    }
 
     /**
      * Gets the list of tiles who are adjacent to this tile
@@ -312,7 +319,11 @@ public class Tile
             {
                 g.setColor(new Color(208, 82, 255));
             }
-            else if (ants.get(0).foodPheromonesActive)
+            else if (ants.get(0) == null)
+            {
+                System.out.println("What?");
+            }
+            else if (ants.get(0).getHeldFood() > 0)
             {
                 g.setColor(new Color(117, 255, 114));
             }
@@ -325,7 +336,10 @@ public class Tile
             int food = this.food;
             for (Ant ant : ants)
             {
-                food += ant.getHeldFood();
+                if (ant != null)
+                {
+                    food += ant.getHeldFood();
+                }
             }
 
             //render food count if greater than zero
@@ -333,16 +347,6 @@ public class Tile
             {
                 g.drawString(food + "", xpos + squareWidth * 1 / 5, ypos + squareWidth * 3 / 4);
             }
-        }
-        //render food pheromone overlay
-        else if (overlay == 3 && foodPheromones > 1)
-        {
-            g.drawString(foodPheromones - 1 + "", xpos + squareWidth * 1 / 5, ypos + squareWidth * 3 / 4);
-        }
-        //render colony pheromone overlay
-        else if (overlay == 4 && colonyPheromones > 1)
-        {
-            g.drawString(colonyPheromones - 1 + "", xpos + squareWidth * 1 / 5, ypos + squareWidth * 3 / 4);
         }
     }
 
@@ -359,5 +363,15 @@ public class Tile
     public void setEdges(ArrayList<Edge> edges)
     {
         this.edges = edges;
+    }
+
+    public int getX()
+    {
+        return x;
+    }
+
+    public int getY()
+    {
+        return y;
     }
 }

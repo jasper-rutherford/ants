@@ -1,7 +1,6 @@
 package Revamped;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  * Ant class
@@ -20,6 +19,12 @@ public class Ant
     private int heldFood;
 
     private ArrayList<Edge> path;
+    private ArrayList<Tile> visitedTiles;
+    private int currentPathPosition;
+
+    private boolean returning;
+
+    private boolean reachedFood;
 
     /**
      * Generates an ant with default settings (aka find food mode) on the specified tile
@@ -31,12 +36,15 @@ public class Ant
         //add this ant to the tile
         this.tile = tile;
         tile.addAnt(this);
-
+        returning = false;
         //default stuff
         heldFood = 0;
+        reachedFood = false;
 
         //initialize path list
         path = new ArrayList<>();
+        visitedTiles = new ArrayList<>();
+        currentPathPosition = 0;
     }
 
     /**
@@ -46,71 +54,130 @@ public class Ant
      */
     public void update(int indicator)
     {
-        //get all adjacent edges and tiles
+        //if returning
+        if (indicator == 1)
+        {
+            //mark this ant as returning
+            returning = true;
+        }
+
+        //get all adjacent edges
         ArrayList<Edge> edges = new ArrayList<>(tile.getEdges());
 
-        //ignore any edges which have already been visited
-        for (int i = edges.size() - 1; i >= 0; i--)
+        //if not returning
+        if (!returning)
         {
-            //if this edge is already in the path
-            if (path.contains(edges.get(i)))
+            //loop through all edges
+            for (int i = edges.size() - 1; i >= 0; i--)
             {
-                //ignore it
-                edges.remove(i);
+                //if this edge leads to a tile which has already been visited
+                if (visitedTiles.contains(edges.get(i).getOtherTile(tile)))
+                {
+                    //ignore it
+                    edges.remove(i);
+                }
+            }
+
+            //if all tiles have been visited, then mark this ant as returning
+            if (edges.size() == 0)
+            {
+                returning = true;
             }
         }
 
-        //if all tiles have been visited, then mark this ant as lost and move back along the path back to the stash
-        if (edges.size() == 0)
-        {
-            lost = true;
-        }
+        Edge chosenEdge = null;
+        Tile nextTile;
 
-        //if not lost
-        if (!lost)
+        //if not returning
+        if (!returning)
         {
             //this hell-code chooses an adjacent edge randomly, weighted by how much pheromone is on the edges
             double[] pheromoneCaps = new double[edges.size()];
-            pheromoneCaps[0] = (edges.get(0).getPheromoneCount() - 1) * pheromoneWeight + 1;
+            pheromoneCaps[0] = edges.get(0).getPheromoneCount();
             for (int i = 1; i < edges.size(); i++)
             {
-                pheromoneCaps[i] = pheromoneCaps[i - 1] + (adjacentTiles.get(i).getColonyPheromones() - 1) * pheromoneWeight + 1;
+                pheromoneCaps[i] = pheromoneCaps[i - 1] + edges.get(0).getPheromoneCount();
             }
             double choice = Math.random() * pheromoneCaps[pheromoneCaps.length - 1];
-            Tile chosenTile = null;
-            for (int i = 0; i < pheromoneCaps.length && chosenTile == null; i++)
+
+            for (int i = 0; i < pheromoneCaps.length && chosenEdge == null; i++)
             {
                 if (choice < pheromoneCaps[i])
                 {
-                    chosenTile = adjacentTiles.get(i);
+                    chosenEdge = edges.get(i);
                 }
             }
         }
-
-        if (chosenTile == null)
+        //if returning
+        else
         {
-            System.out.println("anger");
+            //if there is more path to traverse
+            if (currentPathPosition > 0)
+            {
+                //go backwards along the path
+                chosenEdge = path.get(currentPathPosition - 1);
+            }
         }
+
+        //if no edge has been chosen
+        if (chosenEdge == null)
+        {
+            //assign the current tile as the tile to move to
+            nextTile = tile;
+        }
+        //if an edge has been chosen
+        else
+        {
+            //get the next tile to move to
+            nextTile = chosenEdge.getOtherTile(tile);
+        }
+
         //move to the new tile
         tile.removeAnt(this);       //remove from current tile
-        chosenTile.addAnt(this);    //add to new tile
-        tile = chosenTile;          //set new tile to be the current tile
+        nextTile.addAnt(this);      //add to new tile
+        tile = nextTile;            //set new tile to be the current tile
 
-        //check if this new tile is in the stash
-        if (tile.isStash())
+        //ants who are not returning
+        if (!returning)
         {
-            //place food on the tile
-            tile.changeFood(1);
+            //add this new edge to their path
+            path.add(chosenEdge);
 
-            //drop the food
-            heldFood = 0;
+            //mark themselves as one step further into their path
+            currentPathPosition++;
 
-            //switch to colony pheromones
-            foodPheromonesActive = false;
-            colonyPheromonesActive = true;
+            //if food is reached (and it's not in the stash)
+            if (tile.getFood() > 0 && !tile.isStash())
+            {
+                //mark ant as returning
+                returning = true;
 
-            //forget all recent tiles
-            recentTiles.clear();
+                //remove a food from the tile
+                tile.changeFood(-1);
+
+                //mark the ant as holding a food
+                heldFood = 1;
+
+                //mark the ant as reached food
+                reachedFood = true;
+            }
+        }
+        //ants who are returning
+        else
+        {
+            //mark themselves as one step further back in their path
+            currentPathPosition--;
+
+            //check if entire path has been reversed
+            if (currentPathPosition <= 0)
+            {
+                //if holding food, drop it on the tile
+                if (heldFood > 0)
+                {
+                    tile.changeFood(heldFood);
+                    heldFood = 0;
+                }
+            }
         }
     }
 
@@ -122,5 +189,33 @@ public class Ant
     public int getHeldFood()
     {
         return heldFood;
+    }
+
+    public boolean isReturning()
+    {
+        return returning;
+    }
+
+    public ArrayList<Edge> getPath()
+    {
+        return path;
+    }
+
+    public boolean reachedFood()
+    {
+        return reachedFood;
+    }
+
+    public void reset()
+    {
+        //reset variables
+        returning = false;
+        heldFood = 0;
+        reachedFood = false;
+
+        //reinitialize lists
+        path = new ArrayList<>();
+        visitedTiles = new ArrayList<>();
+        currentPathPosition = 0;
     }
 }

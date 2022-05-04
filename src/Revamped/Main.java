@@ -15,7 +15,7 @@ public class Main
     public static void main(String args[])
     {
         //make the map
-        Map map = new Map(10, 2);
+        Map map = new Map(10, 3);
 
         //make the panel
         Panel panel = new Panel(map);
@@ -35,10 +35,14 @@ public class Main
         boolean temp = true;
 
         //simulate the map
-        double ticksPerSecond = 30.0;
+        double ticksPerSecond = 100.0;
         long lastTime = System.nanoTime();
         double ns = 1000000000 / ticksPerSecond;    //Amount of time between ticks
         double delta = 0;
+
+//        System.out.println("Searching");
+        int searching = searchLength;
+        int returning = 0;
         while (temp)
         {
             //the time since the last loop
@@ -48,9 +52,6 @@ public class Main
 
             //render everything every step of the loop
             frame.repaint();
-
-            int searching = searchLength;
-            int returning = 0;
 
             //completes however many ticks are due
             while (delta >= 1)
@@ -74,6 +75,7 @@ public class Main
                         {
                             //start the return counter
                             returning = searchLength;
+//                            System.out.println("Returning");
                         }
                     }
                     //if we are currently returning
@@ -93,6 +95,7 @@ public class Main
 
                             //restart the search counter
                             searching = searchLength;
+//                            System.out.println("Searching");
                         }
                     }
                 }

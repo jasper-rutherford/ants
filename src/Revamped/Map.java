@@ -46,12 +46,12 @@ public class Map
     /**
      * How much food should be added to a tile for each food spawn
      */
-    private final int foodSpawnAmount = 100;
+    private int foodSpawnAmount;
 
     /**
      * This is the maximum amount of food which was spawned on a tile
      */
-    private int maxFood = foodSpawnAmount;
+    private int maxFood;
 
     private final int mapRadius;
 
@@ -61,6 +61,14 @@ public class Map
      * Which overlay to display (specified in more detail in switchOverlay())
      */
     private int overlay = 1;
+
+    private double evaporationRate = .99;
+
+    private double maxPheromoneReward = 10;
+
+    private ArrayList<Edge> edges;
+
+    private ArrayList<Tile> foodTiles;
 
     /**
      * Generates the tiles and the ants
@@ -119,6 +127,12 @@ public class Map
                 }
             }
         }
+
+        //render the edges
+        for (Edge edge : edges)
+        {
+            edge.render(g);
+        }
     }
 
     /**
@@ -128,6 +142,8 @@ public class Map
      */
     public void generateTiles()
     {
+        edges = new ArrayList<>();
+
         int width = mapRadius * 2 + 1;
         tiles = new Tile[width][width];
 
@@ -144,8 +160,8 @@ public class Map
                 if (x >= left && x <= right)
                 {
                     //fills the grid symmetrically across the central row
-                    tiles[x][y] = new Tile();
-                    tiles[x][mapRadius * 2 - y] = new Tile();
+                    tiles[x][y] = new Tile(x, y);
+                    tiles[x][mapRadius * 2 - y] = new Tile(x, mapRadius * 2 - y);
                 }
                 else
                 {
@@ -232,7 +248,14 @@ public class Map
                                 }
                                 else
                                 {
-                                    edges.add(new Edge(tile, adj));
+                                    //create the new edge
+                                    Edge edge = new Edge(tile, adj);
+
+                                    //add to this tile's list of edges
+                                    edges.add(edge);
+
+                                    //add to the map's list of edges
+                                    this.edges.add(edge);
                                 }
                             }
                         }
@@ -305,6 +328,12 @@ public class Map
      */
     public void generateFood()
     {
+        //each food spawn has one food for every ant
+        foodSpawnAmount = ants.size();
+        maxFood = foodSpawnAmount;
+
+        foodTiles = new ArrayList<>();
+
         //spawn food on as many tiles as have been dictated
         for (int i = 0; i < numFoodSpots; i++)
         {
@@ -323,6 +352,8 @@ public class Map
             //add food to the tile
             spawnFoodHere.changeFood(foodSpawnAmount);
 
+            foodTiles.add(spawnFoodHere);
+
             //check if there is any new maximum amount of food (would happen if a tile were chosen to have food spawn on it multiple times)
             if (spawnFoodHere.getFood() > maxFood)
             {
@@ -337,10 +368,6 @@ public class Map
      * 1: Ants
      * <p>
      * 2: Food
-     * <p>
-     * 3: Food Pheromones
-     * <p>
-     * 4: Colony Pheromones
      */
     public void switchOverlay(int overlay)
     {
@@ -362,5 +389,51 @@ public class Map
             }
         }
         return out;
+    }
+
+    /**
+     * updates the pheromones on the edges, also resets the ants to go back out into the world
+     */
+    public void updatePheromones()
+    {
+        //loop through every edge in the map
+        for (Edge edge : edges)
+        {
+            //decay each edge's pheromones 
+            edge.multiplyPheromoneCount(pheromoneDecay);
+        }
+
+        //loop through all the ants
+        for (Ant ant : ants)
+        {
+            //if the ant found a path which leads to food
+            if (ant.reachedFood())
+            {
+                //get the path
+                ArrayList<Edge> path = ant.getPath();
+
+                //loop through all edges in that path
+                for (Edge edge : path)
+                {
+                    //longer paths receive lower rewards, shorter paths receive higher rewards
+                    edge.changePheromoneCount(maxPheromoneReward / path.size());
+                }
+            }
+
+            //reset the ant
+            ant.reset();
+        }
+
+        //reset the food tiles to zero
+        for (Tile tile : foodTiles)
+        {
+            tile.setFood(0);
+        }
+        //reset the food tiles to full
+        // (this is two separate loops because I want to be able to support multiple food tiles, where one tile could get chosen multiple times)
+        for (Tile tile : foodTiles)
+        {
+            tile.changeFood(foodSpawnAmount);
+        }
     }
 }

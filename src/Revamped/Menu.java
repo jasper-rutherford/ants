@@ -69,28 +69,22 @@ public class Menu implements KeyListener
             System.exit(0);
         }
 
-        // A - Switches to overlaying ants
+        // 1 - Switches to overlaying ants
         else if (e.getKeyChar() == '1')
         {
             map.switchOverlay(1);
         }
 
-        // Q - Switches to overlaying food
+        // 2 - Switches to overlaying food
         else if (e.getKeyChar() == '2')
         {
             map.switchOverlay(2);
         }
 
-        // W - Switches to overlaying food pheromones
+        // 3 - Switches to overlaying
         else if (e.getKeyChar() == '3')
         {
-            map.switchOverlay(3);
-        }
-
-        // E - Switches to overlaying colony pheromones
-        else if (e.getKeyChar() == '4')
-        {
-            map.switchOverlay(4);
+            map.switchOverlay(2);
         }
     }
 
